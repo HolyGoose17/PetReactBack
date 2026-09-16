@@ -3,35 +3,35 @@
   "version": "1.0.0",
   "main": "app.ts",
   "scripts": {
-    "start": "nodemon --exec npx ts-node ./src/app.ts",
-    "test": "jest"
+    "dev": "tsx watch ./src/app.ts",
+    "build": "tsc",
+    "start": "node ./build/app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Pavel Holub",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@babel/plugin-proposal-class-properties": "^7.18.6",
-    "@babel/plugin-proposal-decorators": "^7.28.0",
-    "@babel/preset-typescript": "^7.27.1",
     "cors": "^2.8.5",
     "dotenv": "^17.0.1",
     "express": "5.1.0",
     "express-fileupload": "^1.5.2",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.14.1",
+    "tsx": "^4.23.13",
     "typeorm": "^0.3.25",
     "uuid": "^11.1.0"
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.28.0",
-    "@types/jest": "^27.0.2",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/express-fileupload": "^1.5.1",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^22.20.3",
+    "@types/uuid": "^10.0.0",
     "eslint": "^9.30.1",
-    "jest": "^27.3.1",
     "nodemon": "^3.1.10",
     "prettier": "^3.6.2",
-    "ts-node": "^10.9.2",
-    "tslint": "^5.20.1",
     "typescript": "^5.8.3"
   }
 }

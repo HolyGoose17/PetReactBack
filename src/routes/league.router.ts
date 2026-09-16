@@ -7,9 +7,9 @@ const leagueService = new LeagueService();
 const leagueController = new LeagueController(leagueService)
 
 router.get('/league/', leagueController.fullLeagues.bind(leagueController))
-router.get('/league/:id', leagueController.getLeagueByID.bind(leagueController))
-router.post('/league/', leagueController.postLeague.bind(leagueController))
-router.put('/league/:id', leagueController.putLeague.bind(leagueController))
-router.delete('/league/:id', leagueController.deleteLeague.bind(leagueController))
+.get('/league/:id', leagueController.getLeagueByID.bind(leagueController))
+.post('/league/', leagueController.postLeague.bind(leagueController))
+.put('/league/:id', leagueController.putLeague.bind(leagueController))
+.delete('/league/:id', leagueController.deleteLeague.bind(leagueController))
 
 export default router;

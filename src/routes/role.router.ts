@@ -7,9 +7,9 @@ const roleService = new RoleService();
 const roleController = new RoleController(roleService)
 
 router.get('/role/', roleController.fullRoles.bind(roleController))
-router.get('/role/:id', roleController.getRoleByID.bind(roleController))
-router.post('/role/', roleController.postRole.bind(roleController))
-router.put('/role/:id', roleController.putRole.bind(roleController))
-router.delete('/role/:id', roleController.deleteRole.bind(roleController))
+.get('/role/:id', roleController.getRoleByID.bind(roleController))
+.post('/role/', roleController.postRole.bind(roleController))
+.put('/role/:id', roleController.putRole.bind(roleController))
+.delete('/role/:id', roleController.deleteRole.bind(roleController))
 
 export default router;
