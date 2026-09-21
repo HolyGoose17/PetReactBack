@@ -1,45 +1,43 @@
+import { AppDataSource } from '../config/data-source';
 import { Position } from '../entities/position';
-import { Repository, getRepository } from 'typeorm';
+import { Repository } from 'typeorm';
 
-type PositionDTO = {
-  PositionName?: string;
+export type PositionDTO = {
+  name?: string;
 };
 
 export class PositionService {
-  private positions: Repository<Position>;
+  private positionRepository: Repository<Position>;
+  constructor() {
+    this.positionRepository = AppDataSource.getRepository(Position);
+  }
 
-  async allPositions(): Promise<Position> {
-    this.positions = getRepository(Position);
-    return await this.positions.query('Select * from Position');
+  async allPositions(): Promise<Position[]> {
+    return await this.positionRepository.find();
   }
 
   async findPosition(filters: PositionDTO): Promise<Position[]> {
-    this.positions = getRepository(Position);
-    return await this.positions.find({
-      where: {
-        ...filters,
-      },
+    return await this.positionRepository.find({
+      where: filters,
     });
   }
 
   async findPositionByID(id: number): Promise<Position | null> {
-    this.positions = getRepository(Position);
-    return await this.positions.findOne({ where: { id } });
+    return await this.positionRepository.findOne({ where: { id } });
   }
+
   async createPosition(body: PositionDTO): Promise<Position> {
-    this.positions = getRepository(Position);
-    return await this.positions.save({ ...body });
+    const position = this.positionRepository.create(body);
+    return await this.positionRepository.save(position);
   }
 
   async deletePosition(id: number): Promise<boolean> {
-    this.positions = getRepository(Position);
-    const result = await this.positions.delete({ id: id });
+    const result = await this.positionRepository.delete({ id: id });
     return (result.affected ?? 0) > 0;
   }
 
-  async updatePosition(id: number, body: PositionDTO): Promise<any> {
-    this.positions = getRepository(Position);
-    const result = await this.positions.update(id, { ...body });
-    return result ? true : false;
+  async updatePosition(id: number, body: PositionDTO): Promise<boolean> {
+    const result = await this.positionRepository.update(id, { ...body });
+    return (result.affected ?? 0) > 0;
   }
 }

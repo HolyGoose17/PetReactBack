@@ -1,10 +1,23 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  BaseEntity,
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
-@Entity()
+@Entity('positions')
 export class Position extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column('varchar')
-  PositionName: string;
+  @Column({ type: 'varchar', length: 100, unique: true })
+  name: string;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }
