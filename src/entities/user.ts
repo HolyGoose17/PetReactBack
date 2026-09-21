@@ -1,9 +1,17 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  BaseEntity,
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
-@Entity()
+@Entity('users')
 export class User extends BaseEntity {
   @PrimaryGeneratedColumn()
-  userID: number;
+  id: number;
 
   @Column('varchar', { length: 255, unique: true })
   login: string;
@@ -11,9 +19,15 @@ export class User extends BaseEntity {
   @Column('varchar', { length: 255 })
   password: string;
 
-  @Column('boolean')
-  isDeleted: boolean;
-
-  @Column('varchar', { length: 25 })
+  @Column('varchar', { length: 55, default: 'USER' })
   role: string;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  @DeleteDateColumn()
+  deletedAt: Date;
 }

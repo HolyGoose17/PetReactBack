@@ -1,52 +1,81 @@
-import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import { Request, Response } from 'express';
 import { AuthService } from '../services/auth.service';
-import dotenv from 'dotenv';
-import { SECRET_KEY, STATUS_CODE } from '../utils/constants';
+import { STATUS_CODE } from '../utils/constants';
 
 export class AuthController {
-  private authService: AuthService;
+  constructor(private readonly authService: AuthService) {}
 
-  constructor(authService: AuthService) {
-    this.authService = authService;
+  async register(req: Request, res: Response): Promise<void> {
+    try {
+      const { login, password, role } = req.body;
+      if (!login || !password) {
+        res.status(400).json({ message: 'Login and password are required' });
+        return;
+      }
+
+      const result = await this.authService.register({ login, password, role });
+      if (!result) {
+        res.status(409).json({ message: 'User already exists' });
+        return;
+      }
+
+      res.status(201).json(result);
+    } catch (error) {
+      res.status(500).json({ message: 'Server error' });
+    }
   }
 
-  async loginUser(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
+  async checkAuth(req: Request, res: Response): Promise<void> {
     try {
-      const userData = req.body;
-      const result = await this.authService.login(userData);
+      const userId = (req as any).user.id;
+
+      const user = await this.authService.getMe(userId);
+      if (!user) {
+        res.status(404).json({ message: 'User not found' });
+        return;
+      }
+
+      res.status(200).json(user);
+    } catch (error) {
+      res.status(500).json({ message: 'Server error' });
+    }
+  }
+
+  async loginUser(req: Request, res: Response): Promise<void> {
+    try {
+      const result = await this.authService.login(req.body);
 
       if (!result) {
-        return res
-          .status(STATUS_CODE.NOT_AUTHORYIZED)
+        res
+          .status(STATUS_CODE.NOT_AUTHORIZED)
           .json({ message: 'Invalid credentials' });
+        return;
       }
+
+      const secretKey = process.env.SECRET_KEY || 'my_secret_key';
 
       const token = jwt.sign(
         {
-          id: result.userID,
+          id: result.id,
           login: result.login,
+          role: result.role,
         },
-        SECRET_KEY,
-        { expiresIn: '10s' },
+        secretKey,
+        { expiresIn: '1h' },
       );
 
-      return res.status(STATUS_CODE.OK).json({
+      res.status(STATUS_CODE.OK).json({
         user: {
-          id: result.userID,
+          id: result.id,
           login: result.login,
           role: result.role,
         },
         token,
       });
     } catch (error) {
-      return res
-        .status(STATUS_CODE.INTERNAL_ERROR)
-        .json({ message: 'Server error' });
+      const message = error instanceof Error ? error.message : 'Server error';
+      res.status(STATUS_CODE.INTERNAL_ERROR).json({ message });
     }
   }
 }
