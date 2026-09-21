@@ -23,9 +23,14 @@ import { Owner } from './entities/owner';
 import { Player } from './entities/player';
 import { Role } from './entities/role';
 import { Users } from './entities/user';
+import { AppDataSource } from './config/data-source';
 
 const app = express();
 
+// Настройка CORS и middleware для обработки JSON и загрузки файлов
+app.use(cors());
+app.use(express.json());
+app.use('/uploads', express.static('uploads'));
 app.use(
   fileUpload({
     useTempFiles: true,
@@ -34,44 +39,39 @@ app.use(
   }),
 );
 
+// Публичный маршрут, доступен без авторизации
+app.use('/api/auth', routerAuth);
+
+// Приватный маршрут, доступен только для авторизованных пользователей
+app.use(authMiddleware);
+app.use(routerAgent);
+app.use(routerClub);
+app.use(routerLeague);
+app.use(routerOwner);
+app.use(routerPlayer);
+app.use(routerRole);
+app.use(routerUser);
+
+const PORT = process.env.PORT || 3005;
+
 const runApp = async () => {
   try {
-    await createConnection({
-      type: 'mysql',
-      host: 'localhost',
-      port: 3306,
-      username: 'root',
-      password: '*XQ%60dc',
-      database: 'football_management',
-      entities: [Agent, Club, League, Owner, Player, Role, Users],
-      synchronize: true,
-      logging: ['error'],
-    });
+    await AppDataSource.initialize();
+    console.log('Data Source has been initialized!');
 
-    process.on('uncaughtException', async (err) => {
-      await getConnection().close();
-      process.exit(1);
-    });
-
-    console.log(getMetadataArgsStorage().tables.map((t) => t.name));
-
-    app.use('/uploads', express.static('uploads'));
-    app.use(cors());
-    app.use(express.json());
-    app.use(authMiddleware);
-    app.use(routerAgent);
-    app.use(routerAuth);
-    app.use(routerClub);
-    app.use(routerLeague);
-    app.use(routerOwner);
-    app.use(routerPlayer);
-    app.use(routerRole);
-    app.use(routerUser);
-
-    app.listen('3005', () => console.log('Server is running'));
+    app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
   } catch (err) {
-    console.log(`${err.name}: ${err.message}`);
+    console.error('Error during Data Source initialization:', err);
+    process.exit(1);
   }
+  
+      process.on('uncaughtException', async (err) => {
+        console.error('Uncaught Exception:', err);
+        if(AppDataSource.isInitialized) {
+          await AppDataSource.destroy();
+        }
+        process.exit(1);
+      });
 };
 
 runApp();

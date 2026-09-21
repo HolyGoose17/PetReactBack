@@ -6,7 +6,8 @@
     "dev": "tsx watch ./src/app.ts",
     "build": "tsc",
     "start": "node ./build/app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "type": "module"
   },
   "author": "Pavel Holub",
   "license": "ISC",
@@ -30,6 +31,7 @@
     "@types/node": "^22.20.3",
     "@types/uuid": "^10.0.0",
     "eslint": "^9.30.1",
+    "husky": "^9.1.7",
     "nodemon": "^3.1.10",
     "prettier": "^3.6.2",
     "typescript": "^5.8.3"

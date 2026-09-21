@@ -1,12 +1,22 @@
 {
-    "sourceMap": true,
-    "compilerOptions": {
-    "target": "es6",
-    "module": "commonjs",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "CommonJS",
+
+    "rootDir": "./src",
+    "outDir": "./build",
+
     "esModuleInterop": true,
-    // "outDir": "build",
-    // "baseUrl": "./src",
+    "forceConsistentCasingInFileNames": true,
+    "sourceMap": true,
+
     "emitDecoratorMetadata": true,
-    "experimentalDecorators": true
-    }
+    "experimentalDecorators": true,
+
+    "strict": true,
+    "strictPropertyInitialization": false,
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "build"]
 }
