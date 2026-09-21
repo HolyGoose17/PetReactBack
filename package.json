@@ -6,8 +6,7 @@
     "dev": "tsx watch ./src/app.ts",
     "build": "tsc",
     "start": "node ./build/app.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "type": "module"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Pavel Holub",
   "license": "ISC",
