@@ -6,8 +6,8 @@ import { Club } from '../entities/club';
 import { League } from '../entities/league';
 import { Owner } from '../entities/owner';
 import { Player } from '../entities/player';
-import { Role } from '../entities/role';
-import { Users } from '../entities/user';
+import { Position } from '../entities/position';
+import { User } from '../entities/user';
 
 dotenv.config();
 
@@ -18,7 +18,7 @@ export const AppDataSource = new DataSource({
   username: process.env.DB_USERNAME || 'root',
   password: process.env.DB_PASSWORD || '',
   database: process.env.DB_NAME || 'football_management',
-  entities: [Agent, Club, League, Owner, Player, Role, Users],
+  entities: [Agent, Club, League, Owner, Player, Position, User],
   synchronize: true,
   logging: ['error'],
 });

@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 import { Agent } from './agent';
 import { Club } from './club';
-import { Role } from './role';
+import { Role } from './position';
 
 @Entity()
 export class Player extends BaseEntity {

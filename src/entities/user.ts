@@ -1,19 +1,19 @@
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-export class Users extends BaseEntity {
+export class User extends BaseEntity {
   @PrimaryGeneratedColumn()
   userID: number;
 
-  @Column('text')
+  @Column('varchar', { length: 255, unique: true })
   login: string;
 
-  @Column('text')
+  @Column('varchar', { length: 255 })
   password: string;
 
   @Column('boolean')
   isDeleted: boolean;
 
-  @Column('text')
+  @Column('varchar', { length: 25 })
   role: string;
 }

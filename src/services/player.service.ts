@@ -1,7 +1,7 @@
 import { Agent } from '../entities/agent';
 import { Club } from '../entities/club';
 import { Player } from '../entities/player';
-import { Role } from '../entities/role';
+import { Role } from '../entities/position';
 import { Repository, getRepository } from 'typeorm';
 
 type FilterPlayerDTO = {
