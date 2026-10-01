@@ -10,13 +10,17 @@ export class AuthController {
     try {
       const { login, password, role } = req.body;
       if (!login || !password) {
-        res.status(400).json({ message: 'Login and password are required' });
+        res
+          .status(STATUS_CODE.BAD_REQUEST)
+          .json({ message: 'Login and password are required' });
         return;
       }
 
       const result = await this.authService.register({ login, password, role });
       if (!result) {
-        res.status(409).json({ message: 'User already exists' });
+        res
+          .status(STATUS_CODE.CONFLICT)
+          .json({ message: 'User already exists' });
         return;
       }
 
@@ -32,13 +36,15 @@ export class AuthController {
 
       const user = await this.authService.getMe(userId);
       if (!user) {
-        res.status(404).json({ message: 'User not found' });
+        res.status(STATUS_CODE.NOT_FOUND).json({ message: 'User not found' });
         return;
       }
 
-      res.status(200).json(user);
+      res.status(STATUS_CODE.OK).json(user);
     } catch (error) {
-      res.status(500).json({ message: 'Server error' });
+      res
+        .status(STATUS_CODE.INTERNAL_SERVER_ERROR)
+        .json({ message: 'Server error' });
     }
   }
 
@@ -75,7 +81,7 @@ export class AuthController {
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Server error';
-      res.status(STATUS_CODE.INTERNAL_ERROR).json({ message });
+      res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({ message });
     }
   }
 }

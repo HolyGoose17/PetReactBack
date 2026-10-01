@@ -13,13 +13,13 @@ export class User extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column('varchar', { length: 255, unique: true })
+  @Column({ type: 'varchar', length: 255, unique: true })
   login: string;
 
-  @Column('varchar', { length: 255 })
+  @Column({ type: 'varchar', length: 255, select: false })
   password: string;
 
-  @Column('varchar', { length: 55, default: 'USER' })
+  @Column({ type: 'varchar', length: 55, default: 'USER' })
   role: string;
 
   @CreateDateColumn()

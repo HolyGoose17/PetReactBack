@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
-import { SECRET_KEY } from '../utils/constants';
+import { STATUS_CODE } from '../utils/constants';
 
 export const authMiddleware = (
   req: Request,
@@ -8,14 +8,17 @@ export const authMiddleware = (
   next: NextFunction,
 ) => {
   try {
-    const tokenJswt = req.headers.authorization;
-    if (tokenJswt) {
-      jwt.verify(tokenJswt.split(' ')[1], SECRET_KEY);
+    const tokenJwt = req.headers.authorization;
+    if (tokenJwt) {
+      jwt.verify(
+        tokenJwt.split(' ')[1],
+        process.env.SECRET_KEY || 'my_secret_key',
+      );
       next();
     } else {
-      res.status(401).send('Unauthorazion error');
+      res.status(STATUS_CODE.NOT_AUTHORIZED).send('Unauthorazion error');
     }
   } catch (error) {
-    res.status(403).send('Forbidden');
+    res.status(STATUS_CODE.FORBIDDEN).send('Forbidden');
   }
 };
