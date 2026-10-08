@@ -32,13 +32,13 @@ app.use('/api/auth', routerAuth);
 
 // Приватный маршрут, доступен только для авторизованных пользователей
 app.use(authMiddleware);
-app.use(routerAgent);
-app.use(routerClub);
-app.use(routerLeague);
-app.use(routerOwner);
-app.use(routerPlayer);
-app.use(routerPosition);
-app.use(routerUser);
+app.use('agents', routerAgent);
+app.use('clubs', routerClub);
+app.use('leagues', routerLeague);
+app.use('owners', routerOwner);
+app.use('players', routerPlayer);
+app.use('positions', routerPosition);
+app.use('users', routerUser);
 
 const PORT = process.env.PORT || 3005;
 

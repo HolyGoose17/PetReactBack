@@ -7,12 +7,12 @@ const userService = new UserService();
 const userController = new UserController(userService);
 
 router
-  .route('/users')
+  .route('/')
   .get(userController.getUsers.bind(userController))
   .post(userController.postUser.bind(userController));
 
 router
-  .route('/users/:id')
+  .route('/:id')
   .get(userController.getUserByID.bind(userController))
   .put(userController.updateUser.bind(userController))
   .delete(userController.deleteUser.bind(userController));

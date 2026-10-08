@@ -6,15 +6,13 @@ const router = Router();
 const positionService = new PositionService();
 const positionController = new PositionController(positionService);
 
-// Роуты без параметра id
 router
-  .route('/positions')
+  .route('/')
   .get(positionController.allPositions.bind(positionController))
   .post(positionController.postPosition.bind(positionController));
 
-// Роуты с параметром id
 router
-  .route('/position/:id')
+  .route('/:id')
   .get(positionController.getPositionByID.bind(positionController))
   .put(positionController.putPosition.bind(positionController))
   .delete(positionController.deletePosition.bind(positionController));

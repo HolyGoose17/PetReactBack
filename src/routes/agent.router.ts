@@ -7,10 +7,14 @@ const agentService = new AgentService();
 const agentController = new AgentController(agentService);
 
 router
-  .get('/agents/', agentController.fullAgents.bind(agentController))
-  .get('/agents/:id', agentController.getAgentByID.bind(agentController))
-  .post('/agents/', agentController.postAgent.bind(agentController))
-  .put('/agents/:id', agentController.putAgent.bind(agentController))
-  .delete('/agents/:id', agentController.deleteAgent.bind(agentController));
+  .route('/')
+  .get(agentController.fullAgents.bind(agentController))
+  .post(agentController.postAgent.bind(agentController));
+
+router
+  .route('/:id')
+  .get(agentController.getAgentByID.bind(agentController))
+  .put(agentController.putAgent.bind(agentController))
+  .delete(agentController.deleteAgent.bind(agentController));
 
 export default router;

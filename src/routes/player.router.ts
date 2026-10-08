@@ -6,17 +6,15 @@ const router = Router();
 const playerService = new PlayerService();
 const playerController = new PlayerController(playerService);
 
-router.get('/player/', playerController.fullPlayers.bind(playerController))
-.get('/player/against/stat', playerController.fullPlayers.bind(playerController))
-.get(
-  '/player/:id',
-  playerController.getPlayerByID.bind(playerController),
-)
-.post('/player/', playerController.postPlayer.bind(playerController))
-.put('/player/:id', playerController.putPlayer.bind(playerController))
-.delete(
-  '/player/:id',
-  playerController.deletePlayer.bind(playerController),
-)
+router
+  .get('/', playerController.fullPlayers.bind(playerController))
+  .get('/against/stat', playerController.fullPlayers.bind(playerController))
+  .post('/', playerController.postPlayer.bind(playerController));
+
+router
+  .route('/:id')
+  .get(playerController.getPlayerByID.bind(playerController))
+  .put(playerController.putPlayer.bind(playerController))
+  .delete(playerController.deletePlayer.bind(playerController));
 
 export default router;
