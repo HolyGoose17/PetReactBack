@@ -6,15 +6,12 @@ const router = Router();
 const userService = new UserService();
 const userController = new UserController(userService);
 
-router
-  .route('/')
-  .get(userController.getUsers.bind(userController))
-  .post(userController.postUser.bind(userController));
+router.route('/').get(userController.getUsers).post(userController.postUser);
 
 router
   .route('/:id')
-  .get(userController.getUserByID.bind(userController))
-  .put(userController.updateUser.bind(userController))
-  .delete(userController.deleteUser.bind(userController));
+  .get(userController.getUserByID)
+  .put(userController.updateUser)
+  .delete(userController.deleteUser);
 
 export default router;

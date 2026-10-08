@@ -6,15 +6,12 @@ const router = Router();
 const clubService = new ClubService();
 const clubController = new ClubController(clubService);
 
-router
-  .route('/')
-  .get(clubController.fullClubs.bind(clubController))
-  .post(clubController.postClub.bind(clubController));
+router.route('/').get(clubController.fullClubs).post(clubController.postClub);
 
 router
   .route('/:id')
-  .get(clubController.getClubByID.bind(clubController))
-  .put(clubController.putClub.bind(clubController))
-  .delete(clubController.deleteClub.bind(clubController));
+  .get(clubController.getClubByID)
+  .put(clubController.putClub)
+  .delete(clubController.deleteClub);
 
 export default router;

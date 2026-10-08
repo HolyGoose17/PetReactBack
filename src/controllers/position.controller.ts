@@ -1,75 +1,96 @@
-import { Request, Response, NextFunction } from 'express';
-import { PositionService } from '../services/position.service';
+import { NextFunction, Request, Response } from 'express';
+import { PositionService } from '@/services/position.service';
+import { STATUS_CODE } from '@/utils/constants';
 
 export class PositionController {
   constructor(private readonly positionService: PositionService) {}
 
-  async getPosition(req: Request, res: Response): Promise<void> {
+  getPosition = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     try {
       const result = await this.positionService.findPosition(req.query);
-      res.status(200).json(result);
+      res.status(STATUS_CODE.OK).json(result);
     } catch (error) {
-      this.handleError(res, error);
+      next(error);
     }
-  }
+  };
 
-  async getPositionByID(req: Request, res: Response): Promise<void> {
+  getPositionByID = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     try {
       const id = Number(req.params.id);
       const result = await this.positionService.findPositionByID(id);
 
       if (!result) {
-        res.status(404).json({ message: 'Position not found' });
+        res
+          .status(STATUS_CODE.NOT_FOUND)
+          .json({ message: 'Position not found' });
         return;
       }
 
-      res.status(200).json(result);
+      res.status(STATUS_CODE.OK).json(result);
     } catch (error) {
-      this.handleError(res, error);
+      next(error);
     }
-  }
+  };
 
-  async postPosition(req: Request, res: Response): Promise<void> {
+  postPosition = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     try {
       const result = await this.positionService.createPosition(req.body);
-      res.status(201).json(result);
+      res.status(STATUS_CODE.CREATED).json(result);
     } catch (error) {
-      this.handleError(res, error);
+      next(error);
     }
-  }
+  };
 
-  async deletePosition(req: Request, res: Response): Promise<void> {
+  deletePosition = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     try {
       const id = Number(req.params.id);
       const result = await this.positionService.deletePosition(id);
-      res.status(200).json(result);
+      res.status(STATUS_CODE.OK).json(result);
     } catch (error) {
-      this.handleError(res, error);
+      next(error);
     }
-  }
+  };
 
-  async putPosition(req: Request, res: Response): Promise<void> {
+  putPosition = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     try {
       const id = Number(req.params.id);
       const result = await this.positionService.updatePosition(id, req.body);
-      res.status(200).json(result);
+      res.status(STATUS_CODE.OK).json(result);
     } catch (error) {
-      this.handleError(res, error);
+      next(error);
     }
-  }
+  };
 
-  async allPositions(req: Request, res: Response): Promise<void> {
+  allPositions = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     try {
       const result = await this.positionService.allPositions();
-      res.status(200).json(result);
+      res.status(STATUS_CODE.OK).json(result);
     } catch (error) {
-      this.handleError(res, error);
+      next(error);
     }
-  }
-
-  private handleError(res: Response, error: unknown): void {
-    const message =
-      error instanceof Error ? error.message : 'Internal Server Error';
-    res.status(500).json({ error: message });
-  }
+  };
 }

@@ -1,12 +1,16 @@
 import jwt from 'jsonwebtoken';
-import { Request, Response } from 'express';
-import { AuthService } from '../services/auth.service';
-import { STATUS_CODE } from '../utils/constants';
+import { NextFunction, Request, Response } from 'express';
+import { AuthService } from '@/services/auth.service';
+import { STATUS_CODE } from '@/utils/constants';
 
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  async register(req: Request, res: Response): Promise<void> {
+  register = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     try {
       const { login, password, role } = req.body;
       if (!login || !password) {
@@ -24,13 +28,17 @@ export class AuthController {
         return;
       }
 
-      res.status(201).json(result);
+      res.status(STATUS_CODE.CREATED).json(result);
     } catch (error) {
-      res.status(500).json({ message: 'Server error' });
+      next(error);
     }
-  }
+  };
 
-  async checkAuth(req: Request, res: Response): Promise<void> {
+  checkAuth = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     try {
       const userId = (req as any).user.id;
 
@@ -42,13 +50,15 @@ export class AuthController {
 
       res.status(STATUS_CODE.OK).json(user);
     } catch (error) {
-      res
-        .status(STATUS_CODE.INTERNAL_SERVER_ERROR)
-        .json({ message: 'Server error' });
+      next(error);
     }
-  }
+  };
 
-  async loginUser(req: Request, res: Response): Promise<void> {
+  loginUser = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     try {
       const result = await this.authService.login(req.body);
 
@@ -80,8 +90,7 @@ export class AuthController {
         token,
       });
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Server error';
-      res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({ message });
+      next(error);
     }
-  }
+  };
 }

@@ -8,13 +8,13 @@ const ownerController = new OwnerController(ownerService);
 
 router
   .route('/')
-  .get(ownerController.fullOwners.bind(ownerController))
-  .post(ownerController.postOwner.bind(ownerController));
+  .get(ownerController.fullOwners)
+  .post(ownerController.postOwner);
 
 router
   .route('/:id')
-  .get(ownerController.getOwnerByID.bind(ownerController))
-  .put(ownerController.putOwner.bind(ownerController))
-  .delete(ownerController.deleteOwner.bind(ownerController));
+  .get(ownerController.getOwnerByID)
+  .put(ownerController.putOwner)
+  .delete(ownerController.deleteOwner);
 
 export default router;

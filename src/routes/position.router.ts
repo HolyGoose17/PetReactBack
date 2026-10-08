@@ -8,13 +8,13 @@ const positionController = new PositionController(positionService);
 
 router
   .route('/')
-  .get(positionController.allPositions.bind(positionController))
-  .post(positionController.postPosition.bind(positionController));
+  .get(positionController.allPositions)
+  .post(positionController.postPosition);
 
 router
   .route('/:id')
-  .get(positionController.getPositionByID.bind(positionController))
-  .put(positionController.putPosition.bind(positionController))
-  .delete(positionController.deletePosition.bind(positionController));
+  .get(positionController.getPositionByID)
+  .put(positionController.putPosition)
+  .delete(positionController.deletePosition);
 
 export default router;

@@ -1,6 +1,6 @@
-import * as fs from 'fs';
 import { Request, Response, NextFunction } from 'express';
-import { PlayerService } from '../services/player.service';
+import { PlayerService } from '@/services/player.service';
+import { STATUS_CODE } from '@/utils/constants';
 
 export class PlayerController {
   private playerService: PlayerService;
@@ -8,46 +8,42 @@ export class PlayerController {
     this.playerService = playerService;
   }
 
-  async getPlayer(
+  getPlayer = async (
     req: Request,
     res: Response,
     next: NextFunction,
-  ): Promise<void> {
+  ): Promise<void> => {
     try {
       const result = await this.playerService.findPlayer(req.query as any);
-      res.status(200).json(result);
+      res.status(STATUS_CODE.OK).json(result);
     } catch (error) {
-      res.status(500).json({ error: error.message });
-    } finally {
-      next();
+      next(error);
     }
-  }
+  };
 
-  async getPlayerByID(
+  getPlayerByID = async (
     req: Request,
     res: Response,
     next: NextFunction,
-  ): Promise<void> {
+  ): Promise<void> => {
     try {
       const id = parseInt(req.params.id, 10);
       const result = await this.playerService.findPlayerByID(id);
       if (!result) {
-        res.status(404).json({ error: 'Player not found' });
+        res.status(STATUS_CODE.NOT_FOUND).json({ error: 'Player not found' });
       } else {
-        res.status(200).json(result);
+        res.status(STATUS_CODE.OK).json(result);
       }
     } catch (error) {
-      res.status(500).json({ error: error.message });
-    } finally {
-      next();
+      next(error);
     }
-  }
+  };
 
-  async postPlayer(
+  postPlayer = async (
     req: Request,
     res: Response,
     next: NextFunction,
-  ): Promise<void> {
+  ): Promise<void> => {
     try {
       const {
         playerName,
@@ -83,35 +79,31 @@ export class PlayerController {
       };
 
       const result = await this.playerService.createPlayer(playerData);
-      res.status(201).json(result);
+      res.status(STATUS_CODE.CREATED).json(result);
     } catch (error) {
-      res.status(500).json({ error: error.message });
-    } finally {
-      next();
+      next(error);
     }
-  }
+  };
 
-  async deletePlayer(
+  deletePlayer = async (
     req: Request,
     res: Response,
     next: NextFunction,
-  ): Promise<void> {
+  ): Promise<void> => {
     try {
       const id = parseInt(req.params.id, 10);
       const result = await this.playerService.deletePlayer(id);
-      res.status(200).json({ success: result });
+      res.status(STATUS_CODE.OK).json({ success: result });
     } catch (error) {
-      res.status(500).json({ error: error.message });
-    } finally {
-      next();
+      next(error);
     }
-  }
+  };
 
-  async putPlayer(
+  putPlayer = async (
     req: Request,
     res: Response,
     next: NextFunction,
-  ): Promise<void> {
+  ): Promise<void> => {
     try {
       const id = parseInt(req.params.id, 10);
       const {
@@ -129,7 +121,9 @@ export class PlayerController {
 
       const player = await this.playerService.findPlayerByID(id);
       if (!player) {
-        return res.status(404).json({ error: 'Player not found' });
+        return res
+          .status(STATUS_CODE.NOT_FOUND)
+          .json({ error: 'Player not found' });
       }
 
       if (path && !path.startsWith('img/')) {
@@ -160,29 +154,27 @@ export class PlayerController {
       const result = await this.playerService.updatePlayer(id, updateData);
       if (result) {
         const updatedPlayer = await this.playerService.findPlayerByID(id);
-        res.status(200).json(updatedPlayer);
+        res.status(STATUS_CODE.OK).json(updatedPlayer);
       } else {
-        res.status(500).json({ error: 'Failed to update player' });
+        res
+          .status(STATUS_CODE.INTERNAL_SERVER_ERROR)
+          .json({ error: 'Failed to update player' });
       }
     } catch (error) {
-      res.status(500).json({ error: error.message });
-    } finally {
-      next();
+      next(error);
     }
-  }
+  };
 
-  async fullPlayers(
+  fullPlayers = async (
     req: Request,
     res: Response,
     next: NextFunction,
-  ): Promise<void> {
+  ): Promise<void> => {
     try {
       const result = await this.playerService.allPlayers();
-      res.status(200).json(result);
+      res.status(STATUS_CODE.OK).json(result);
     } catch (error) {
-      res.status(500).json({ error: error.message });
-    } finally {
-      next();
+      next(error);
     }
-  }
+  };
 }

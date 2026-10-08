@@ -8,13 +8,13 @@ const leagueController = new LeagueController(leagueService);
 
 router
   .route('/')
-  .get(leagueController.fullLeagues.bind(leagueController))
-  .post(leagueController.postLeague.bind(leagueController));
+  .get(leagueController.fullLeagues)
+  .post(leagueController.postLeague);
 
 router
   .route('/:id')
-  .get(leagueController.getLeagueByID.bind(leagueController))
-  .put(leagueController.putLeague.bind(leagueController))
-  .delete(leagueController.deleteLeague.bind(leagueController));
+  .get(leagueController.getLeagueByID)
+  .put(leagueController.putLeague)
+  .delete(leagueController.deleteLeague);
 
 export default router;

@@ -1,83 +1,91 @@
-import { Owner } from "../entities/owner";
-import { Request, Response, NextFunction } from "express";
-import { OwnerService } from "../services/owner.service";
-import { Repository, getRepository } from "typeorm";
+import { NextFunction, Request, Response } from 'express';
+import { OwnerService } from '@/services/owner.service';
+import { STATUS_CODE } from '@/utils/constants';
 
 export class OwnerController {
-    private ownerService: OwnerService;
-    constructor (ownerService: OwnerService) {
-        this.ownerService = ownerService
-    }
+  private ownerService: OwnerService;
+  constructor(ownerService: OwnerService) {
+    this.ownerService = ownerService;
+  }
 
-    async getOwner(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const result = await this.ownerService.findOwner(req.query);
-            res.status(200).send(result)
-        } catch (error){
-            res.status(500).send(error)
-        }
-        finally {
-            next()
-        }
+  getOwner = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    try {
+      const result = await this.ownerService.findOwner(req.query);
+      res.status(STATUS_CODE.OK).send(result);
+    } catch (error) {
+      next(error);
     }
+  };
 
-    async getOwnerByID(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const result = await this.ownerService.findOwnerByID(req.params.id);
-            res.status(200).send(result)
-        } catch (error){
-            res.status(500).send(error)
-        }
-        finally {
-            next()
-        }
+  getOwnerByID = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    try {
+      const result = await this.ownerService.findOwnerByID(req.params.id);
+      res.status(STATUS_CODE.OK).send(result);
+    } catch (error) {
+      next(error);
     }
+  };
 
-    async postOwner(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const result = await this.ownerService.createOwner(req.body);
-            res.status(200).send(result)
-        } catch (error){
-            res.status(500).send(error)
-        }
-        finally {
-            next()
-        }
+  postOwner = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    try {
+      const result = await this.ownerService.createOwner(req.body);
+      res.status(STATUS_CODE.CREATED).send(result);
+    } catch (error) {
+      next(error);
     }
+  };
 
-    async deleteOwner(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const result = await this.ownerService.deleteOwner(req.params.id);
-            res.status(200).send(result)
-        } catch (error){
-            res.status(500).send(error)
-        }
-        finally {
-            next()
-        }
+  deleteOwner = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    try {
+      const result = await this.ownerService.deleteOwner(req.params.id);
+      res.status(STATUS_CODE.OK).send(result);
+    } catch (error) {
+      next(error);
     }
+  };
 
-    async putOwner(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {           
-            const result = await this.ownerService.updateOwner(req.params.id, req.body);
-            res.status(200).send(result)
-        } catch (error){
-            res.status(500).send(error)
-        }
-        finally {
-            next()
-        }
+  putOwner = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    try {
+      const result = await this.ownerService.updateOwner(
+        req.params.id,
+        req.body,
+      );
+      res.status(STATUS_CODE.OK).send(result);
+    } catch (error) {
+      next(error);
     }
+  };
 
-    async fullOwners(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {           
-            const result = await this.ownerService.allOwners();
-            res.status(200).send(result)
-        } catch (error){
-            res.status(500).send(error)
-        }
-        finally {
-            next()
-        }
+  fullOwners = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    try {
+      const result = await this.ownerService.allOwners();
+      res.status(STATUS_CODE.OK).send(result);
+    } catch (error) {
+      next(error);
     }
+  };
 }

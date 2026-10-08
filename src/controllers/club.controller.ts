@@ -1,7 +1,6 @@
-import { ClubService } from '../services/club.service';
-import { Repository, getRepository } from 'typeorm';
+import { STATUS_CODE } from '@/utils/constants';
+import { ClubService } from '@/services/club.service';
 import { Request, Response, NextFunction } from 'express';
-import { Club } from '../entities/club';
 
 export class ClubController {
   private clubService: ClubService;
@@ -9,46 +8,42 @@ export class ClubController {
     this.clubService = clubService;
   }
 
-  async getClub(
+  getClub = async (
     req: Request,
     res: Response,
     next: NextFunction,
-  ): Promise<void> {
+  ): Promise<void> => {
     try {
       const result = await this.clubService.findClub(req.query as any);
-      res.status(200).send(result);
+      res.status(STATUS_CODE.OK).send(result);
     } catch (error) {
-      res.status(500).send({ error: error.message });
-    } finally {
-      next();
+      next(error);
     }
-  }
+  };
 
-  async getClubByID(
+  getClubByID = async (
     req: Request,
     res: Response,
     next: NextFunction,
-  ): Promise<void> {
+  ): Promise<void> => {
     try {
       const id = parseInt(req.params.id, 10);
       const result = await this.clubService.findClubByID(id);
       if (!result) {
-        res.status(404).json({ error: 'Club not found' });
+        res.status(STATUS_CODE.NOT_FOUND).json({ error: 'Club not found' });
       } else {
-        res.status(200).json(result);
+        res.status(STATUS_CODE.OK).json(result);
       }
     } catch (error) {
-      res.status(500).send({ error: error.message });
-    } finally {
-      next();
+      next(error);
     }
-  }
+  };
 
-  async postClub(
+  postClub = async (
     req: Request,
     res: Response,
     next: NextFunction,
-  ): Promise<void> {
+  ): Promise<void> => {
     try {
       const {
         clubName,
@@ -74,35 +69,31 @@ export class ClubController {
       };
 
       const result = await this.clubService.createClub(clubData);
-      res.status(201).json(result);
+      res.status(STATUS_CODE.CREATED).json(result);
     } catch (error) {
-      res.status(500).json({ error: error.message });
-    } finally {
-      next();
+      next(error);
     }
-  }
+  };
 
-  async deleteClub(
+  deleteClub = async (
     req: Request,
     res: Response,
     next: NextFunction,
-  ): Promise<void> {
+  ): Promise<void> => {
     try {
       const id = parseInt(req.params.id, 10);
       const result = await this.clubService.deleteClub(id);
-      res.status(200).json({ success: result });
+      res.status(STATUS_CODE.OK).json({ success: result });
     } catch (error) {
-      res.status(500).send({ error: error.message });
-    } finally {
-      next();
+      next(error);
     }
-  }
+  };
 
-  async putClub(
+  putClub = async (
     req: Request,
     res: Response,
     next: NextFunction,
-  ): Promise<void> {
+  ): Promise<void> => {
     try {
       const id = parseInt(req.params.id, 10);
       const {
@@ -115,7 +106,9 @@ export class ClubController {
 
       const club = await this.clubService.findClubByID(id);
       if (!club) {
-        return res.status(404).json({ error: 'Club not found' });
+        return res
+          .status(STATUS_CODE.NOT_FOUND)
+          .json({ error: 'Club not found' });
       }
 
       if (pathLogo && !pathLogo.startsWith('img/')) {
@@ -141,29 +134,27 @@ export class ClubController {
       const result = await this.clubService.updateClub(id, updateData);
       if (result) {
         const updatedClub = await this.clubService.findClubByID(id);
-        res.status(200).json(updatedClub);
+        res.status(STATUS_CODE.OK).json(updatedClub);
       } else {
-        res.status(500).json({ error: 'Failed to update club' });
+        res
+          .status(STATUS_CODE.INTERNAL_SERVER_ERROR)
+          .json({ error: 'Failed to update club' });
       }
     } catch (error) {
-      res.status(500).json({ error: error.message });
-    } finally {
-      next();
+      next(error);
     }
-  }
+  };
 
-  async fullClubs(
+  fullClubs = async (
     req: Request,
     res: Response,
     next: NextFunction,
-  ): Promise<void> {
+  ): Promise<void> => {
     try {
       const result = await this.clubService.allClubs();
-      res.status(200).send(result);
+      res.status(STATUS_CODE.OK).send(result);
     } catch (error) {
-      res.status(500).send({ error: error.message });
-    } finally {
-      next();
+      next(error);
     }
-  }
+  };
 }

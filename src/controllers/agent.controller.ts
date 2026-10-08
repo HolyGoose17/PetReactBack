@@ -1,83 +1,91 @@
-
-import { Request, Response, NextFunction } from "express";
-import { AgentService } from "../services/agent.service";
-
+import { Request, Response, NextFunction } from 'express';
+import { AgentService } from '@/services/agent.service';
+import { STATUS_CODE } from '@/utils/constants';
 
 export class AgentController {
-    private agentService: AgentService;
-    constructor (agentService: AgentService) {
-        this.agentService = agentService
-    }
+  private agentService: AgentService;
+  constructor(agentService: AgentService) {
+    this.agentService = agentService;
+  }
 
-    async getAgent(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const result = await this.agentService.findAgents(req.query);
-            res.status(200).send(result)
-        } catch (error){
-            res.status(500).send(error)
-        }
-        finally {
-            next()
-        }
+  getAgent = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    try {
+      const result = await this.agentService.findAgents(req.query);
+      res.status(STATUS_CODE.OK).send(result);
+    } catch (error) {
+      next(error);
     }
+  };
 
-    async getAgentByID(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const result = await this.agentService.findAgentByID(req.params.id);
-            res.status(200).send(result)
-        } catch (error){
-            res.status(500).send(error)
-        }
-        finally {
-            next()
-        }
+  getAgentByID = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    try {
+      const result = await this.agentService.findAgentByID(req.params.id);
+      res.status(STATUS_CODE.OK).send(result);
+    } catch (error) {
+      next(error);
     }
+  };
 
-    async postAgent(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const result = await this.agentService.createAgent(req.body);
-            res.status(200).send(result)
-        } catch (error){
-            res.status(500).send(error)
-        }
-        finally {
-            next()
-        }
+  postAgent = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    try {
+      const result = await this.agentService.createAgent(req.body);
+      res.status(STATUS_CODE.CREATED).send(result);
+    } catch (error) {
+      next(error);
     }
+  };
 
-    async deleteAgent(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const result = await this.agentService.deleteAgent(req.params.id);
-            res.status(200).send(result)
-        } catch (error){
-            res.status(500).send(error)
-        }
-        finally {
-            next()
-        }
+  deleteAgent = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    try {
+      const result = await this.agentService.deleteAgent(req.params.id);
+      res.status(STATUS_CODE.OK).send(result);
+    } catch (error) {
+      next(error);
     }
+  };
 
-    async putAgent(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {           
-            const result = await this.agentService.updateAgent(req.params.id, req.body);
-            res.status(200).send(result)
-        } catch (error){
-            res.status(500).send(error)
-        }
-        finally {
-            next()
-        }
+  putAgent = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    try {
+      const result = await this.agentService.updateAgent(
+        req.params.id,
+        req.body,
+      );
+      res.status(STATUS_CODE.OK).send(result);
+    } catch (error) {
+      next(error);
     }
+  };
 
-    async fullAgents(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {           
-            const result = await this.agentService.allAgents();
-            res.status(200).send(result)
-        } catch (error){
-            res.status(500).send(error)
-        }
-        finally {
-            next()
-        }
+  fullAgents = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    try {
+      const result = await this.agentService.allAgents();
+      res.status(STATUS_CODE.OK).send(result);
+    } catch (error) {
+      next(error);
     }
+  };
 }

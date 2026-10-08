@@ -12,6 +12,7 @@ import routerUser from './routes/user.router';
 import routerAuth from './routes/auth.router';
 import { authMiddleware } from './middlewares/auth.middlewares';
 import { AppDataSource } from './config/data-source';
+import { errorMiddleware } from './middlewares/error.middleware';
 
 const app = express();
 
@@ -39,6 +40,7 @@ app.use('owners', routerOwner);
 app.use('players', routerPlayer);
 app.use('positions', routerPosition);
 app.use('users', routerUser);
+app.use(errorMiddleware);
 
 const PORT = process.env.PORT || 3005;
 

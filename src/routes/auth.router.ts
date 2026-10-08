@@ -10,13 +10,9 @@ const authService = new AuthService(userService);
 const authController = new AuthController(authService);
 
 router
-  .post('/register', authController.register.bind(authController))
-  .post('/login/', authController.loginUser.bind(authController));
+  .post('/register', authController.register)
+  .post('/login/', authController.loginUser);
 
-router.get(
-  '/me',
-  authMiddleware,
-  authController.checkAuth.bind(authController),
-);
+router.get('/me', authMiddleware, authController.checkAuth);
 
 export default router;
