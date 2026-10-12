@@ -1,4 +1,4 @@
-import { League } from '../entities/league';
+import { League } from '../entities/league.entity';
 import { Repository, getRepository } from 'typeorm';
 
 type FilterLeagueDTO = {

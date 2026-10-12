@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import { User } from '../entities/user';
+import { User } from '../entities/user.entity';
 import { UserService, CreateUserDTO } from './user.service';
 import jwt from 'jsonwebtoken';
 

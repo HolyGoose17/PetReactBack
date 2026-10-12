@@ -2,12 +2,12 @@ import dotenv from 'dotenv';
 
 import { Agent } from 'http';
 import { DataSource } from 'typeorm';
-import { Club } from '../entities/club';
-import { League } from '../entities/league';
-import { Owner } from '../entities/owner';
-import { Player } from '../entities/player';
-import { Position } from '../entities/position';
-import { User } from '../entities/user';
+import { Club } from '../entities/club.entity';
+import { League } from '../entities/league.entity';
+import { Owner } from '../entities/owner.entity';
+import { Player } from '../entities/player.entity';
+import { Position } from '../entities/position.entity';
+import { User } from '../entities/user.entity';
 
 dotenv.config();
 

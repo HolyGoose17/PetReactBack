@@ -1,5 +1,5 @@
 import { AppDataSource } from '../config/data-source';
-import { Position } from '../entities/position';
+import { Position } from '../entities/position.entity';
 import { Repository } from 'typeorm';
 
 export type PositionDTO = {

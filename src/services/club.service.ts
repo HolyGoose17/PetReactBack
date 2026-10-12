@@ -1,6 +1,6 @@
-import { Club } from '../entities/club';
-import { League } from '../entities/league';
-import { Owner } from '../entities/owner';
+import { Club } from '../entities/club.entity';
+import { League } from '../entities/league.entity';
+import { Owner } from '../entities/owner.entity';
 import { Repository, getRepository } from 'typeorm';
 
 type FilterClubDTO = {
