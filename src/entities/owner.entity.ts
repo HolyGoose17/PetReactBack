@@ -1,6 +1,6 @@
 import { Column, OneToMany, Entity } from 'typeorm';
-import { Club } from './club.entity';
-import { SoftDeleteEntity } from './soft-delete.entity';
+import { Club } from '@/entities/club.entity';
+import { SoftDeleteEntity } from '@/entities/soft-delete.entity';
 
 @Entity('owners')
 export class Owner extends SoftDeleteEntity {

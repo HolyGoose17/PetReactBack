@@ -1,5 +1,5 @@
 import { Column, Entity } from 'typeorm';
-import { SoftDeleteEntity } from './soft-delete.entity';
+import { SoftDeleteEntity } from '@/entities/soft-delete.entity';
 
 export enum UserRole {
   USER = 'USER',

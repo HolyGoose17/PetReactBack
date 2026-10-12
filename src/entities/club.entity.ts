@@ -1,8 +1,8 @@
 import { Column, Entity, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
-import { Player } from './player.entity';
-import { Owner } from './owner.entity';
-import { League } from './league.entity';
-import { SoftDeleteEntity } from './soft-delete.entity';
+import { Player } from '@/entities/player.entity';
+import { Owner } from '@/entities/owner.entity';
+import { League } from '@/entities/league.entity';
+import { SoftDeleteEntity } from '@/entities/soft-delete.entity';
 
 @Entity('clubs')
 export class Club extends SoftDeleteEntity {

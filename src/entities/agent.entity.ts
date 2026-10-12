@@ -1,6 +1,6 @@
 import { Column, Entity, OneToMany } from 'typeorm';
-import { Player } from './player.entity';
-import { SoftDeleteEntity } from './soft-delete.entity';
+import { Player } from '@/entities/player.entity';
+import { SoftDeleteEntity } from '@/entities/soft-delete.entity';
 
 @Entity('agents')
 export class Agent extends SoftDeleteEntity {

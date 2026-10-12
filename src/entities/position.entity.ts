@@ -1,6 +1,6 @@
 import { Column, Entity, OneToMany } from 'typeorm';
-import { Player } from './player.entity';
-import { BaseEntity } from './base.entity';
+import { Player } from '@/entities/player.entity';
+import { BaseEntity } from '@/entities/base.entity';
 
 @Entity('positions')
 export class Position extends BaseEntity {

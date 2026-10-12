@@ -1,8 +1,8 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
-import { Agent } from './agent.entity';
-import { Club } from './club.entity';
-import { Position } from './position.entity';
-import { SoftDeleteEntity } from './soft-delete.entity';
+import { Agent } from '@/entities/agent.entity';
+import { Club } from '@/entities/club.entity';
+import { Position } from '@/entities/position.entity';
+import { SoftDeleteEntity } from '@/entities/soft-delete.entity';
 
 export enum PreferredFoot {
   LEFT = 'LEFT',
