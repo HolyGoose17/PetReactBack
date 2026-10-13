@@ -1,6 +1,29 @@
 import { NextFunction, Request, Response } from 'express';
 import { UserService } from '@/services/user.service';
 import { STATUS_CODE } from '@/utils/constants';
+import { User, UserRole } from '@/entities/user.entity';
+
+type UserResponseDTO = {
+  id: string;
+  login: string;
+  role: UserRole;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+type UserIdParams = {
+  id: string;
+};
+
+function toUserResponse(user: User): UserResponseDTO {
+  return {
+    id: user.id,
+    login: user.login,
+    role: user.role,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+  };
+}
 
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -11,26 +34,39 @@ export class UserController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const result = await this.userService.findUser(req.query);
-      res.status(STATUS_CODE.OK).send(result);
+      const role = req.query.role as UserRole | undefined;
+      if (
+        role !== undefined &&
+        role !== UserRole.USER &&
+        role !== UserRole.ADMIN
+      ) {
+        res
+          .status(STATUS_CODE.BAD_REQUEST)
+          .json({ message: 'Invalid role filter' });
+        return;
+      }
+      const users = await this.userService.findUser(
+        role === undefined ? {} : { role },
+      );
+      res.status(STATUS_CODE.OK).send(users.map(toUserResponse));
     } catch (error) {
       next(error);
     }
   };
 
   getUserByID = async (
-    req: Request,
+    req: Request<UserIdParams>,
     res: Response,
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const result = await this.userService.findUserByID(Number(req.params.id));
+      const user = await this.userService.findUserByID(req.params.id);
 
-      if (!result) {
+      if (!user) {
         res.status(STATUS_CODE.NOT_FOUND).json({ message: 'User not found' });
         return;
       }
-      res.status(STATUS_CODE.OK).json(result);
+      res.status(STATUS_CODE.OK).json(toUserResponse(user));
     } catch (error) {
       next(error);
     }
@@ -55,37 +91,45 @@ export class UserController {
 
       const user = await this.userService.createUser({ login, password, role });
 
-      res.status(STATUS_CODE.CREATED).json({ user });
+      res.status(STATUS_CODE.CREATED).json(toUserResponse(user));
     } catch (error) {
       next(error);
     }
   };
 
   deleteUser = async (
-    req: Request,
+    req: Request<UserIdParams>,
     res: Response,
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const result = await this.userService.deleteUser(Number(req.params.id));
-      res.status(STATUS_CODE.OK).json({ success: result });
+      const deleted = await this.userService.deleteUser(req.params.id);
+
+      if (!deleted) {
+        res.status(STATUS_CODE.NOT_FOUND).json({ message: 'User not found' });
+        return;
+      }
+
+      res.status(STATUS_CODE.OK).json({ success: true });
     } catch (error) {
       next(error);
     }
   };
 
   updateUser = async (
-    req: Request,
+    req: Request<UserIdParams>,
     res: Response,
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const result = await this.userService.updateUser(
-        Number(req.params.id),
-        req.body,
-      );
+      const user = await this.userService.updateUser(req.params.id, req.body);
 
-      res.status(STATUS_CODE.OK).json({ success: result });
+      if (!user) {
+        res.status(STATUS_CODE.NOT_FOUND).json({ message: 'User not found' });
+        return;
+      }
+
+      res.status(STATUS_CODE.OK).json(toUserResponse(user));
     } catch (error) {
       next(error);
     }
