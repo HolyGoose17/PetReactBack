@@ -6,7 +6,12 @@
     "dev": "tsx watch ./src/app.ts",
     "build": "tsc",
     "start": "node ./build/app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "typeorm": "tsx ./node_modules/typeorm/cli.js",
+    "migration:generate": "typeorm-ts-node-commonjs migration:generate",
+    "migration:create": "typeorm migration:create",
+    "migration:run": "typeorm-ts-node-commonjs migration:run",
+    "migration:revert": "typeorm-ts-node-commonjs migration:revert"
   },
   "author": "Pavel Holub",
   "license": "ISC",
