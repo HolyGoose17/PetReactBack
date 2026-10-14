@@ -1,17 +1,26 @@
 import { Request, Response } from 'express';
 import { AgentService } from '@/services/agent.service';
-import { STATUS_CODE } from '@/utils/constants';
+import { AbstractIdParams, STATUS_CODE } from '@/utils/constants';
 
 export class AgentController {
   constructor(private readonly agentService: AgentService) {}
 
   getAgent = async (req: Request, res: Response): Promise<void> => {
-    const result = await this.agentService.findAgents(req.query);
+    const result = await this.agentService.findAgent(req.query);
     res.status(STATUS_CODE.OK).send(result);
   };
 
-  getAgentByID = async (req: Request, res: Response): Promise<void> => {
+  getAgentByID = async (
+    req: Request<AbstractIdParams>,
+    res: Response,
+  ): Promise<void> => {
     const result = await this.agentService.findAgentByID(req.params.id);
+
+    if (!result) {
+      res.status(STATUS_CODE.NOT_FOUND).send({ message: 'Agent not found' });
+      return;
+    }
+
     res.status(STATUS_CODE.OK).send(result);
   };
 
@@ -20,18 +29,19 @@ export class AgentController {
     res.status(STATUS_CODE.CREATED).send(result);
   };
 
-  deleteAgent = async (req: Request, res: Response): Promise<void> => {
+  deleteAgent = async (
+    req: Request<AbstractIdParams>,
+    res: Response,
+  ): Promise<void> => {
     const result = await this.agentService.deleteAgent(req.params.id);
     res.status(STATUS_CODE.OK).send(result);
   };
 
-  putAgent = async (req: Request, res: Response): Promise<void> => {
+  putAgent = async (
+    req: Request<AbstractIdParams>,
+    res: Response,
+  ): Promise<void> => {
     const result = await this.agentService.updateAgent(req.params.id, req.body);
-    res.status(STATUS_CODE.OK).send(result);
-  };
-
-  fullAgents = async (req: Request, res: Response): Promise<void> => {
-    const result = await this.agentService.allAgents();
     res.status(STATUS_CODE.OK).send(result);
   };
 }

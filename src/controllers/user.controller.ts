@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { UserService } from '@/services/user.service';
-import { STATUS_CODE } from '@/utils/constants';
+import { AbstractIdParams, STATUS_CODE } from '@/utils/constants';
 import { User, UserRole } from '@/entities/user.entity';
 
 type UserResponseDTO = {
@@ -9,10 +9,6 @@ type UserResponseDTO = {
   role: UserRole;
   createdAt: Date;
   updatedAt: Date;
-};
-
-type UserIdParams = {
-  id: string;
 };
 
 function toUserResponse(user: User): UserResponseDTO {
@@ -55,7 +51,7 @@ export class UserController {
   };
 
   getUserByID = async (
-    req: Request<UserIdParams>,
+    req: Request<AbstractIdParams>,
     res: Response,
     next: NextFunction,
   ): Promise<void> => {
@@ -98,7 +94,7 @@ export class UserController {
   };
 
   deleteUser = async (
-    req: Request<UserIdParams>,
+    req: Request<AbstractIdParams>,
     res: Response,
     next: NextFunction,
   ): Promise<void> => {
@@ -117,7 +113,7 @@ export class UserController {
   };
 
   updateUser = async (
-    req: Request<UserIdParams>,
+    req: Request<AbstractIdParams>,
     res: Response,
     next: NextFunction,
   ): Promise<void> => {

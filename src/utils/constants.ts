@@ -8,3 +8,7 @@ export const STATUS_CODE = {
   CONFLICT: 409,
   INTERNAL_SERVER_ERROR: 500,
 } as const;
+
+export type AbstractIdParams = {
+  id: string;
+};
