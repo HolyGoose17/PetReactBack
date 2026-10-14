@@ -30,7 +30,6 @@ export class AgentService {
   async findAgentByID(id: string): Promise<Agent | null> {
     return this.agentRepository.findOne({
       where: { id },
-      // relations: ['players'], // Uncomment this line if you want to include related players when fetching an agent
     });
   }
 
@@ -57,6 +56,6 @@ export class AgentService {
       agent.name = body.name;
     }
 
-    return agent ? this.findAgentByID(agent.id) : null;
+    return this.agentRepository.save(agent);
   }
 }

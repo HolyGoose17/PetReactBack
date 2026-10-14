@@ -1,154 +1,123 @@
-import { Club } from '../entities/club.entity';
-import { League } from '../entities/league.entity';
-import { Owner } from '../entities/owner.entity';
-import { Repository, getRepository } from 'typeorm';
+import { AppDataSource } from '@/config/data-source';
+import { Club } from '@/entities/club.entity';
+import { League } from '@/entities/league.entity';
+import { Owner } from '@/entities/owner.entity';
+import { Repository } from 'typeorm';
 
 type FilterClubDTO = {
-  clubName?: string;
-  pathLogo?: string;
-  pathLeague?: string;
+  name?: string;
 };
 
-type CreateClubDTO = Omit<
-  ClubResponse,
-  'clubID' | 'ownerName' | 'leagueName'
-> & {
-  ownerName: { ownerID: number };
-  leagueName: { leagueID: number };
+type CreateClubDTO = {
+  name: string;
+  logoPath: string;
+  ownerId: string;
+  leagueId: string;
 };
 
-type UpdateClubDTO = Partial<
-  Omit<ClubResponse, 'clubID' | 'ownerName' | 'leagueName'> & {
-    ownerNameOwnerID?: number;
-    leagueNameLeagueID?: number;
-    pathLogo?: string;
-    pathLeague?: string;
-  }
->;
-
-export type ClubResponse = {
-  clubID: number;
-  clubName: string;
-  pathLogo: string;
-  pathLeague: string;
-  ownerName: string | null;
-  leagueName: string | null;
+type UpdateClubDTO = {
+  name?: string;
+  logoPath?: string;
+  ownerId?: string;
+  leagueId?: string;
 };
 
 export class ClubService {
-  private clubs: Repository<Club>;
+  private readonly clubRepository: Repository<Club>;
+  private readonly ownerRepository: Repository<Owner>;
+  private readonly leagueRepository: Repository<League>;
 
-  async allClubs(): Promise<ClubResponse[]> {
-    this.clubs = getRepository(Club);
-    const clubs = await this.clubs.find({
-      relations: { ownerName: true, leagueName: true },
-    });
-
-    return clubs.map((c) => {
-      console.log('Mapping club:', {
-        clubID: c.clubID,
-        ownerName: c.ownerName?.ownerName,
-        ownerNameID: c.ownerName?.ownerID,
-        leagueName: c.leagueName?.leagueName,
-        leagueNameID: c.leagueName?.leagueID,
-      });
-      return {
-        clubID: c.clubID,
-        clubName: c.clubName,
-        pathLogo: c.pathLogo,
-        pathLeague: c.pathLeague,
-        ownerName: c.ownerName?.ownerName || null,
-        leagueName: c.leagueName?.leagueName || null,
-      };
-    });
+  constructor() {
+    this.clubRepository = AppDataSource.getRepository(Club);
+    this.ownerRepository = AppDataSource.getRepository(Owner);
+    this.leagueRepository = AppDataSource.getRepository(League);
   }
 
-  async findClub(filters: FilterClubDTO): Promise<ClubResponse[]> {
-    this.clubs = getRepository(Club);
-    const clubs = await this.clubs.find({
+  async findClub(filters: FilterClubDTO): Promise<Club[]> {
+    return this.clubRepository.find({
       where: { ...filters },
-      relations: ['ownerName', 'leagueName'],
+      relations: ['owner', 'league'],
     });
-
-    return clubs.map((c) => ({
-      clubID: c.clubID,
-      clubName: c.clubName,
-      pathLogo: c.pathLogo,
-      pathLeague: c.pathLeague,
-      ownerName: c.ownerName?.ownerName || null,
-      leagueName: c.leagueName?.leagueName || null,
-    }));
   }
 
-  async findClubByID(clubID: number): Promise<ClubResponse | null> {
-    this.clubs = getRepository(Club);
-    const club = await this.clubs.findOne({
-      where: { clubID },
-      relations: ['ownerName', 'leagueName'],
+  async findClubByID(id: string): Promise<Club | null> {
+    return this.clubRepository.findOne({
+      where: { id },
+      relations: ['owner', 'league'],
     });
-
-    if (!club) return null;
-
-    return {
-      clubID: club.clubID,
-      clubName: club.clubName,
-      pathLogo: club.pathLogo,
-      pathLeague: club.pathLeague,
-      ownerName: club.ownerName?.ownerName || null,
-      leagueName: club.leagueName?.leagueName || null,
-    };
   }
 
   async createClub(body: CreateClubDTO): Promise<Club> {
-    this.clubs = getRepository(Club);
-    const club = this.clubs.create(body);
-    return await this.clubs.save(club);
+    const owner = await this.ownerRepository.findOne({
+      where: { id: body.ownerId },
+    });
+    if (!owner) {
+      throw new Error('Owner not found');
+    }
+
+    const league = await this.leagueRepository.findOne({
+      where: { id: body.leagueId },
+    });
+    if (!league) {
+      throw new Error('League not found');
+    }
+
+    const club = this.clubRepository.create({
+      name: body.name,
+      logoPath: body.logoPath,
+      owner,
+      league,
+    });
+    return this.clubRepository.save(club);
   }
 
-  async deleteClub(clubID: number): Promise<boolean> {
-    this.clubs = getRepository(Club);
-    const result = await this.clubs.delete({ clubID });
-    return (result.affected ?? 0) > 0;
-  }
-
-  async updateClub(id: number, body: UpdateClubDTO): Promise<boolean> {
-    this.clubs = getRepository(Club);
-
-    const club = await this.clubs.findOne({
-      where: { clubID: id },
-      relations: ['ownerName', 'leagueName'],
+  async updateClub(id: string, body: UpdateClubDTO): Promise<Club | null> {
+    const club = await this.clubRepository.findOne({
+      where: { id },
+      relations: ['owner', 'league'],
     });
 
     if (!club) {
-      throw new Error('Club not found');
+      return null;
     }
 
-    club.clubName = body.clubName ?? club.clubName;
-    club.pathLogo = body.pathLogo ?? club.pathLogo;
-    club.pathLeague = body.pathLeague ?? club.pathLeague;
+    if (body.name !== undefined) {
+      club.name = body.name;
+    }
 
-    if (body.ownerNameOwnerID !== undefined) {
-      const ownerRepo = getRepository(Owner);
-      const owner = await ownerRepo.findOne({
-        where: { ownerID: body.ownerNameOwnerID },
+    if (body.logoPath !== undefined) {
+      club.logoPath = body.logoPath;
+    }
+
+    if (body.ownerId !== undefined) {
+      const owner = await this.ownerRepository.findOne({
+        where: { id: body.ownerId },
       });
-      club.ownerName = owner || null;
+
+      if (!owner) {
+        throw new Error('Owner not found');
+      }
+
+      club.owner = owner;
     }
 
-    if (body.leagueNameLeagueID !== undefined) {
-      const leagueRepo = getRepository(League);
-      const league = await leagueRepo.findOne({
-        where: { leagueID: body.leagueNameLeagueID },
+    if (body.leagueId !== undefined) {
+      const league = await this.leagueRepository.findOne({
+        where: { id: body.leagueId },
       });
-      club.leagueName = league || null;
+
+      if (!league) {
+        throw new Error('League not found');
+      }
+      club.league = league;
     }
 
-    try {
-      await this.clubs.save(club);
-      return true;
-    } catch (error) {
-      console.error('Ошибка при сохранении:', error);
-      throw error;
-    }
+    return this.clubRepository.save(club);
+  }
+
+  async deleteClub(id: string): Promise<boolean> {
+    const result = await this.clubRepository.softDelete({ id });
+
+    return (result.affected ?? 0) > 0;
   }
 }
