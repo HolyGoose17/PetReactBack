@@ -1,5 +1,5 @@
 import { AppDataSource } from '@/config/data-source';
-import { League } from '../entities/league.entity';
+import { League } from '@/entities/league.entity';
 import { Repository } from 'typeorm';
 
 type FilterLeagueDTO = {
@@ -33,7 +33,8 @@ export class LeagueService {
   }
 
   async createLeague(body: CreateLeagueDTO): Promise<League> {
-    return this.leagueRepository.save({ ...body });
+    const league = this.leagueRepository.create(body);
+    return this.leagueRepository.save(league);
   }
 
   async updateLeague(

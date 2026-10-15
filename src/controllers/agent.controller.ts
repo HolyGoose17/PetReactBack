@@ -6,42 +6,56 @@ export class AgentController {
   constructor(private readonly agentService: AgentService) {}
 
   getAgent = async (req: Request, res: Response): Promise<void> => {
-    const result = await this.agentService.findAgent(req.query);
-    res.status(STATUS_CODE.OK).send(result);
+    const agent = await this.agentService.findAgent(req.query);
+
+    res.status(STATUS_CODE.OK).json(agent);
   };
 
   getAgentByID = async (
     req: Request<AbstractIdParams>,
     res: Response,
   ): Promise<void> => {
-    const result = await this.agentService.findAgentByID(req.params.id);
+    const agent = await this.agentService.findAgentByID(req.params.id);
 
-    if (!result) {
-      res.status(STATUS_CODE.NOT_FOUND).send({ message: 'Agent not found' });
+    if (!agent) {
+      res.status(STATUS_CODE.NOT_FOUND).json({ error: 'Agent not found' });
       return;
     }
 
-    res.status(STATUS_CODE.OK).send(result);
+    res.status(STATUS_CODE.OK).json(agent);
   };
 
   postAgent = async (req: Request, res: Response): Promise<void> => {
-    const result = await this.agentService.createAgent(req.body);
-    res.status(STATUS_CODE.CREATED).send(result);
+    const agent = await this.agentService.createAgent(req.body);
+
+    res.status(STATUS_CODE.CREATED).json(agent);
   };
 
   deleteAgent = async (
     req: Request<AbstractIdParams>,
     res: Response,
   ): Promise<void> => {
-    const result = await this.agentService.deleteAgent(req.params.id);
-    res.status(STATUS_CODE.OK).send(result);
+    const agent = await this.agentService.deleteAgent(req.params.id);
+
+    if (!agent) {
+      res.status(STATUS_CODE.NOT_FOUND).json({ error: 'Agent not found' });
+      return;
+    }
+
+    res.status(STATUS_CODE.OK).json({ success: true });
   };
 
   putAgent = async (
     req: Request<AbstractIdParams>,
     res: Response,
   ): Promise<void> => {
-    const result = await this.agentService.updateAgent(req.params.id, req.body);
-    res.status(STATUS_CODE.OK).send(result);
+    const agent = await this.agentService.updateAgent(req.params.id, req.body);
+
+    if (!agent) {
+      res.status(STATUS_CODE.NOT_FOUND).json({ error: 'Agent not found' });
+      return;
+    }
+
+    res.status(STATUS_CODE.OK).json(agent);
   };
 }
