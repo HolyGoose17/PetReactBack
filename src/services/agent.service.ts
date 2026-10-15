@@ -37,11 +37,13 @@ export class AgentService {
     const agent = this.agentRepository.create({
       ...body,
     });
+
     return this.agentRepository.save(agent);
   }
 
   async deleteAgent(id: string): Promise<boolean> {
     const result = await this.agentRepository.softDelete({ id });
+
     return (result.affected ?? 0) > 0;
   }
 

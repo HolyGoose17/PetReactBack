@@ -1,91 +1,61 @@
-import { NextFunction, Request, Response } from 'express';
+import { Request, Response } from 'express';
 import { OwnerService } from '@/services/owner.service';
-import { STATUS_CODE } from '@/utils/constants';
+import { AbstractIdParams, STATUS_CODE } from '@/utils/constants';
 
 export class OwnerController {
-  private ownerService: OwnerService;
-  constructor(ownerService: OwnerService) {
-    this.ownerService = ownerService;
-  }
+  constructor(private readonly ownerService: OwnerService) {}
 
-  getOwner = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> => {
-    try {
-      const result = await this.ownerService.findOwner(req.query);
-      res.status(STATUS_CODE.OK).send(result);
-    } catch (error) {
-      next(error);
-    }
+  getOwner = async (req: Request, res: Response): Promise<void> => {
+    const owner = await this.ownerService.findOwner(req.query);
+
+    res.status(STATUS_CODE.OK).json(owner);
   };
 
   getOwnerByID = async (
-    req: Request,
+    req: Request<AbstractIdParams>,
     res: Response,
-    next: NextFunction,
   ): Promise<void> => {
-    try {
-      const result = await this.ownerService.findOwnerByID(req.params.id);
-      res.status(STATUS_CODE.OK).send(result);
-    } catch (error) {
-      next(error);
+    const owner = await this.ownerService.findOwnerByID(req.params.id);
+
+    if (!owner) {
+      res.status(STATUS_CODE.NOT_FOUND).json({ error: 'Owner not found' });
+      return;
     }
+
+    res.status(STATUS_CODE.OK).json(owner);
   };
 
-  postOwner = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> => {
-    try {
-      const result = await this.ownerService.createOwner(req.body);
-      res.status(STATUS_CODE.CREATED).send(result);
-    } catch (error) {
-      next(error);
-    }
+  postOwner = async (req: Request, res: Response): Promise<void> => {
+    const owner = await this.ownerService.createOwner(req.body);
+
+    res.status(STATUS_CODE.CREATED).json(owner);
   };
 
   deleteOwner = async (
-    req: Request,
+    req: Request<AbstractIdParams>,
     res: Response,
-    next: NextFunction,
   ): Promise<void> => {
-    try {
-      const result = await this.ownerService.deleteOwner(req.params.id);
-      res.status(STATUS_CODE.OK).send(result);
-    } catch (error) {
-      next(error);
+    const owner = await this.ownerService.deleteOwner(req.params.id);
+
+    if (!owner) {
+      res.status(STATUS_CODE.NOT_FOUND).json({ error: 'Owner not found' });
+      return;
     }
+
+    res.status(STATUS_CODE.OK).json({ success: true });
   };
 
   putOwner = async (
-    req: Request,
+    req: Request<AbstractIdParams>,
     res: Response,
-    next: NextFunction,
   ): Promise<void> => {
-    try {
-      const result = await this.ownerService.updateOwner(
-        req.params.id,
-        req.body,
-      );
-      res.status(STATUS_CODE.OK).send(result);
-    } catch (error) {
-      next(error);
-    }
-  };
+    const owner = await this.ownerService.updateOwner(req.params.id, req.body);
 
-  fullOwners = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> => {
-    try {
-      const result = await this.ownerService.allOwners();
-      res.status(STATUS_CODE.OK).send(result);
-    } catch (error) {
-      next(error);
+    if (!owner) {
+      res.status(STATUS_CODE.NOT_FOUND).json({ error: 'Owner not found' });
+      return;
     }
+
+    res.status(STATUS_CODE.OK).json(owner);
   };
 }

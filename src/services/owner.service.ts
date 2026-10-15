@@ -1,51 +1,58 @@
-import { Owner } from '../entities/owner.entity';
-import { Repository, getRepository } from 'typeorm';
+import { AppDataSource } from '@/config/data-source';
+import { Owner } from '@/entities/owner.entity';
+import { Repository } from 'typeorm';
 
 type FilterOwnerDTO = {
-  ownerName?: string;
+  name?: string;
 };
 type CreateOwnerDTO = {
-  ownerName?: string;
+  name: string;
 };
 type UpdateOwnerDTO = {
-  ownerName?: string;
+  name?: string;
 };
 
 export class OwnerService {
-  private owners: Repository<Owner>;
+  private readonly ownerRepository: Repository<Owner>;
 
-  async allOwners(): Promise<Owner> {
-    this.owners = getRepository(Owner);
-    return await this.owners.query('Select * from Owner');
+  constructor() {
+    this.ownerRepository = AppDataSource.getRepository(Owner);
   }
 
   async findOwner(filters: FilterOwnerDTO): Promise<Owner[]> {
-    this.owners = getRepository(Owner);
-    return await this.owners.find({
+    return this.ownerRepository.find({
       where: {
         ...filters,
       },
     });
   }
 
-  async findOwnerByID(ownerID: number): Promise<Owner> {
-    this.owners = getRepository(Owner);
-    return await this.owners.findOne({ where: { ownerID } });
+  async findOwnerByID(id: string): Promise<Owner | null> {
+    return this.ownerRepository.findOne({ where: { id } });
   }
   async createOwner(body: CreateOwnerDTO): Promise<Owner> {
-    this.owners = getRepository(Owner);
-    return await this.owners.save({ ...body });
+    const owner = this.ownerRepository.create({ ...body });
+
+    return this.ownerRepository.save(owner);
   }
 
-  async deleteOwner(ownerID: number): Promise<boolean> {
-    this.owners = getRepository(Owner);
-    const result = await this.owners.delete({ ownerID });
+  async deleteOwner(id: string): Promise<boolean> {
+    const result = await this.ownerRepository.softDelete({ id });
+
     return (result.affected ?? 0) > 0;
   }
 
-  async updateOwner(id: number, body: UpdateOwnerDTO): Promise<any> {
-    this.owners = getRepository(Owner);
-    const result = await this.owners.update(id, { ...body });
-    return result ? true : false;
+  async updateOwner(id: string, body: UpdateOwnerDTO): Promise<Owner | null> {
+    const owner = await this.ownerRepository.findOne({ where: { id } });
+
+    if (!owner) {
+      return null;
+    }
+
+    if (body.name !== undefined) {
+      owner.name = body.name;
+    }
+
+    return this.ownerRepository.save(owner);
   }
 }

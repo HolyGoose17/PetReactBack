@@ -6,10 +6,7 @@ const router = Router();
 const ownerService = new OwnerService();
 const ownerController = new OwnerController(ownerService);
 
-router
-  .route('/')
-  .get(ownerController.fullOwners)
-  .post(ownerController.postOwner);
+router.route('/').get(ownerController.getOwner).post(ownerController.postOwner);
 
 router
   .route('/:id')
