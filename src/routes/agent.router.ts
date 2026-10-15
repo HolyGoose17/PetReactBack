@@ -6,10 +6,7 @@ const router = Router();
 const agentService = new AgentService();
 const agentController = new AgentController(agentService);
 
-router
-  .route('/')
-  .get(agentController.fullAgents)
-  .post(agentController.postAgent);
+router.route('/').get(agentController.getAgent).post(agentController.postAgent);
 
 router
   .route('/:id')

@@ -8,7 +8,7 @@ const leagueController = new LeagueController(leagueService);
 
 router
   .route('/')
-  .get(leagueController.fullLeagues)
+  .get(leagueController.getLeague)
   .post(leagueController.postLeague);
 
 router

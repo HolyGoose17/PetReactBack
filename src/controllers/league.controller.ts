@@ -1,91 +1,63 @@
 import { Request, Response, NextFunction } from 'express';
 import { LeagueService } from '@/services/league.service';
-import { STATUS_CODE } from '@/utils/constants';
+import { AbstractIdParams, STATUS_CODE } from '@/utils/constants';
 
 export class LeagueController {
-  private leagueService: LeagueService;
-  constructor(leagueService: LeagueService) {
-    this.leagueService = leagueService;
-  }
+  constructor(private readonly leagueService: LeagueService) {}
 
-  getLeague = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> => {
-    try {
-      const result = await this.leagueService.findLeague(req.query);
-      res.status(STATUS_CODE.OK).send(result);
-    } catch (error) {
-      next(error);
-    }
+  getLeague = async (req: Request, res: Response): Promise<void> => {
+    const result = await this.leagueService.findLeague(req.query);
+
+    res.status(STATUS_CODE.OK).send(result);
   };
 
   getLeagueByID = async (
-    req: Request,
+    req: Request<AbstractIdParams>,
     res: Response,
-    next: NextFunction,
   ): Promise<void> => {
-    try {
-      const result = await this.leagueService.findLeagueByID(req.params.id);
-      res.status(STATUS_CODE.OK).send(result);
-    } catch (error) {
-      next(error);
+    const result = await this.leagueService.findLeagueByID(req.params.id);
+
+    if (!result) {
+      res.status(STATUS_CODE.NOT_FOUND).json({ error: 'League not found' });
+      return;
     }
+
+    res.status(STATUS_CODE.OK).send(result);
   };
 
-  postLeague = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> => {
-    try {
-      const result = await this.leagueService.createLeague(req.body);
-      res.status(STATUS_CODE.CREATED).send(result);
-    } catch (error) {
-      next(error);
-    }
+  postLeague = async (req: Request, res: Response): Promise<void> => {
+    const result = await this.leagueService.createLeague(req.body);
+    res.status(STATUS_CODE.CREATED).send(result);
   };
 
   deleteLeague = async (
-    req: Request,
+    req: Request<AbstractIdParams>,
     res: Response,
-    next: NextFunction,
   ): Promise<void> => {
-    try {
-      const result = await this.leagueService.deleteLeague(req.params.id);
-      res.status(STATUS_CODE.OK).send(result);
-    } catch (error) {
-      next(error);
+    const result = await this.leagueService.deleteLeague(req.params.id);
+
+    if (!result) {
+      res.status(STATUS_CODE.NOT_FOUND).json({ error: 'League not found' });
+      return;
     }
+
+    res.status(STATUS_CODE.OK).send(result);
   };
 
   putLeague = async (
-    req: Request,
+    req: Request<AbstractIdParams>,
     res: Response,
-    next: NextFunction,
   ): Promise<void> => {
-    try {
-      const result = await this.leagueService.updateLeague(
-        req.params.id,
-        req.body,
-      );
-      res.status(STATUS_CODE.OK).send(result);
-    } catch (error) {
-      next(error);
-    }
-  };
+    const result = await this.leagueService.updateLeague(
+      req.params.id,
+      req.body,
+    );
 
-  fullLeagues = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> => {
-    try {
-      const result = await this.leagueService.allLeagues();
-      res.status(STATUS_CODE.OK).send(result);
-    } catch (error) {
-      next(error);
+    if (!result) {
+      res.status(STATUS_CODE.NOT_FOUND).json({ error: 'League not found' });
+      return;
     }
+
+    res.status(STATUS_CODE.OK).send(result);
   };
 }
