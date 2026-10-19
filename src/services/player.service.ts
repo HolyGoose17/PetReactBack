@@ -1,195 +1,213 @@
-import { Agent } from '../entities/agent.entity';
-import { Club } from '../entities/club.entity';
-import { Player } from '../entities/player.entity';
-import { Role } from '../entities/position.entity';
-import { Repository, getRepository } from 'typeorm';
+import { AppDataSource } from '@/config/data-source';
+import { Agent } from '@/entities/agent.entity';
+import { Club } from '@/entities/club.entity';
+import {
+  Player,
+  PreferredFoot,
+  SalaryCurrency,
+} from '@/entities/player.entity';
+import { Position } from '@/entities/position.entity';
+import { Repository } from 'typeorm';
 
 type FilterPlayerDTO = {
-  playerName?: string;
-  playerAge?: number;
-  playerNational?: string;
-  playerFoot?: string;
-  playerSalary?: string;
-  path?: string;
-  pathWork?: string;
+  name?: string;
+  dateOfBirth?: Date;
+  nationality?: string;
+  preferredFoot?: PreferredFoot;
+  salary?: number;
+  salaryCurrency?: SalaryCurrency;
+  agent_id?: string;
+  club_id?: string;
+  positionId?: string;
+  photoPath?: string;
 };
 
-type CreatePlayerDTO = Omit<
-  PlayerResponse,
-  'playerID' | 'clubName' | 'agentName' | 'roleName'
-> & {
-  roleName: { roleID: number };
-  agentName: { agentID: number };
-  clubName: { clubID: number };
+type CreatePlayerDTO = {
+  name: string;
+  dateOfBirth: Date;
+  nationality: string;
+  preferredFoot: PreferredFoot;
+  salary: number;
+  salaryCurrency: SalaryCurrency;
+  agent_id?: string;
+  club_id?: string;
+  positionId: string;
+  photoPath: string;
 };
 
-type UpdatePlayerDTO = Partial<
-  Omit<PlayerResponse, 'playerID' | 'clubName' | 'agentName' | 'roleName'> & {
-    roleNameRoleID?: number;
-    agentNameAgentID?: number;
-    clubNameClubID?: number;
-    path?: string;
-    pathWork?: string;
-  }
->;
-
-export type PlayerResponse = {
-  playerID: number;
-  playerName: string;
-  playerAge: number;
-  playerNational: string;
-  playerFoot: string;
-  playerSalary: string;
-  path: string;
-  pathWork: string;
-  clubName: string | null;
-  agentName: string | null;
-  roleName: string | null;
+type UpdatePlayerDTO = {
+  name?: string;
+  dateOfBirth?: Date;
+  nationality?: string;
+  preferredFoot?: PreferredFoot;
+  salary?: number;
+  salaryCurrency?: SalaryCurrency;
+  agent_id?: string;
+  club_id?: string;
+  positionId?: string;
+  photoPath?: string;
 };
 
 export class PlayerService {
-  private players: Repository<Player>;
+  private readonly playerRepository: Repository<Player>;
+  private readonly agentRepository: Repository<Agent>;
+  private readonly clubRepository: Repository<Club>;
+  private readonly positionRepository: Repository<Position>;
 
-  async allPlayers(): Promise<PlayerResponse[]> {
-    this.players = getRepository(Player);
-    const players = await this.players.find({
-      relations: { clubName: true, agentName: true, roleName: true },
-    });
+  constructor() {
+    this.playerRepository = AppDataSource.getRepository(Player);
+    this.agentRepository = AppDataSource.getRepository(Agent);
+    this.clubRepository = AppDataSource.getRepository(Club);
+    this.positionRepository = AppDataSource.getRepository(Position);
+  }
 
-    return players.map((p) => {
-      console.log('Mapping player:', {
-        playerID: p.playerID,
-        roleName: p.roleName?.roleName,
-        roleNameID: p.roleName?.roleID,
-        agentName: p.agentName?.agentName,
-        agentNameID: p.agentName?.agentID,
-        clubName: p.clubName?.clubName,
-        clubNameID: p.clubName?.clubID,
-      });
-      return {
-        playerID: p.playerID,
-        playerName: p.playerName,
-        playerAge: p.playerAge,
-        playerNational: p.playerNational,
-        playerFoot: p.playerFoot,
-        playerSalary: p.playerSalary,
-        path: p.path,
-        pathWork: p.pathWork,
-        clubName: p.clubName?.clubName || null,
-        agentName: p.agentName?.agentName || null,
-        roleName: p.roleName?.roleName || null,
-      };
+  async findPlayer(filters: FilterPlayerDTO): Promise<Player[]> {
+    const { agent_id, club_id, positionId, ...playerFilters } = filters;
+
+    return this.playerRepository.find({
+      where: {
+        ...playerFilters,
+        ...(agent_id !== undefined ? { agent: { id: agent_id } } : {}),
+        ...(club_id !== undefined ? { club: { id: club_id } } : {}),
+        ...(positionId !== undefined
+          ? { position: { id: positionId } }
+          : {}),
+      },
+      relations: ['agent', 'club', 'position'],
     });
   }
 
-  async findPlayer(filters: FilterPlayerDTO): Promise<PlayerResponse[]> {
-    this.players = getRepository(Player);
-    const players = await this.players.find({
-      where: { ...filters },
-      relations: ['clubName', 'agentName', 'roleName'],
+  async findPlayerByID(id: string): Promise<Player | null> {
+    return this.playerRepository.findOne({
+      where: { id },
+      relations: ['agent', 'club', 'position'],
     });
-
-    return players.map((p) => ({
-      playerID: p.playerID,
-      playerName: p.playerName,
-      playerAge: p.playerAge,
-      playerNational: p.playerNational,
-      playerFoot: p.playerFoot,
-      playerSalary: p.playerSalary,
-      path: p.path,
-      pathWork: p.pathWork,
-      clubName: p.clubName?.clubName || null,
-      agentName: p.agentName?.agentName || null,
-      roleName: p.roleName?.roleName || null,
-    }));
-  }
-
-  async findPlayerByID(playerID: number): Promise<PlayerResponse | null> {
-    this.players = getRepository(Player);
-    const player = await this.players.findOne({
-      where: { playerID },
-      relations: ['clubName', 'agentName', 'roleName'],
-    });
-
-    if (!player) return null;
-
-    return {
-      playerID: player.playerID,
-      playerName: player.playerName,
-      playerAge: player.playerAge,
-      playerNational: player.playerNational,
-      playerFoot: player.playerFoot,
-      playerSalary: player.playerSalary,
-      path: player.path,
-      pathWork: player.pathWork,
-      clubName: player.clubName?.clubName || null,
-      agentName: player.agentName?.agentName || null,
-      roleName: player.roleName?.roleName || null,
-    };
   }
 
   async createPlayer(body: CreatePlayerDTO): Promise<Player> {
-    this.players = getRepository(Player);
-    const player = this.players.create(body);
-    return await this.players.save(player);
+    const agent =
+      body.agent_id === undefined
+        ? null
+        : await this.agentRepository.findOne({
+            where: { id: body.agent_id },
+          });
+    if (body.agent_id !== undefined && !agent) {
+      throw new Error('Agent not found');
+    }
+
+    const club =
+      body.club_id === undefined
+        ? null
+        : await this.clubRepository.findOne({
+            where: { id: body.club_id },
+          });
+    if (body.club_id !== undefined && !club) {
+      throw new Error('Club not found');
+    }
+
+    const position = await this.positionRepository.findOne({
+      where: { id: body.positionId },
+    });
+    if (!position) {
+      throw new Error('Position not found');
+    }
+
+    const player = this.playerRepository.create({
+      name: body.name,
+      dateOfBirth: body.dateOfBirth,
+      nationality: body.nationality,
+      preferredFoot: body.preferredFoot,
+      salary: body.salary,
+      salaryCurrency: body.salaryCurrency,
+      photoPath: body.photoPath,
+      agent,
+      club,
+      position,
+    });
+
+    return this.playerRepository.save(player);
   }
 
-  async deletePlayer(playerID: number): Promise<boolean> {
-    this.players = getRepository(Player);
-    const result = await this.players.delete({ playerID });
+  async deletePlayer(id: string): Promise<boolean> {
+    const result = await this.playerRepository.softDelete({ id });
+
     return (result.affected ?? 0) > 0;
   }
 
-  async updatePlayer(id: number, body: UpdatePlayerDTO): Promise<boolean> {
-    this.players = getRepository(Player);
-
-    const player = await this.players.findOne({
-      where: { playerID: id },
-      relations: ['roleName', 'agentName', 'clubName'],
+  async updatePlayer(
+    id: string,
+    body: UpdatePlayerDTO,
+  ): Promise<Player | null> {
+    const player = await this.playerRepository.findOne({
+      where: { id },
+      relations: ['agent', 'club', 'position'],
     });
 
     if (!player) {
-      throw new Error('Player not found');
+      return null;
     }
 
-    player.playerName = body.playerName ?? player.playerName;
-    player.playerAge = body.playerAge ?? player.playerAge;
-    player.playerNational = body.playerNational ?? player.playerNational;
-    player.playerFoot = body.playerFoot ?? player.playerFoot;
-    player.playerSalary = body.playerSalary ?? player.playerSalary;
-    player.path = body.path ?? player.path;
-    player.pathWork = body.pathWork ?? player.pathWork;
+    if (body.name !== undefined) {
+      player.name = body.name;
+    }
 
-    if (body.roleNameRoleID !== undefined) {
-      const roleRepo = getRepository(Role);
-      const role = await roleRepo.findOne({
-        where: { roleID: body.roleNameRoleID },
+    if (body.dateOfBirth !== undefined) {
+      player.dateOfBirth = body.dateOfBirth;
+    }
+
+    if (body.nationality !== undefined) {
+      player.nationality = body.nationality;
+    }
+
+    if (body.preferredFoot !== undefined) {
+      player.preferredFoot = body.preferredFoot;
+    }
+
+    if (body.salary !== undefined) {
+      player.salary = body.salary;
+    }
+
+    if (body.salaryCurrency !== undefined) {
+      player.salaryCurrency = body.salaryCurrency;
+    }
+
+    if (body.photoPath !== undefined) {
+      player.photoPath = body.photoPath;
+    }
+
+    if (body.agent_id !== undefined) {
+      const agent = await this.agentRepository.findOne({
+        where: { id: body.agent_id },
       });
-      player.roleName = role || null;
+
+      if (!agent) {
+        throw new Error('Agent not found');
+      }
+      player.agent = agent;
     }
 
-    if (body.agentNameAgentID !== undefined) {
-      const agentRepo = getRepository(Agent);
-      const agent = await agentRepo.findOne({
-        where: { agentID: body.agentNameAgentID },
+    if (body.club_id !== undefined) {
+      const club = await this.clubRepository.findOne({
+        where: { id: body.club_id },
       });
-      player.agentName = agent || null;
+
+      if (!club) {
+        throw new Error('Club not found');
+      }
+      player.club = club;
     }
 
-    if (body.clubNameClubID !== undefined) {
-      const clubRepo = getRepository(Club);
-      const club = await clubRepo.findOne({
-        where: { clubID: body.clubNameClubID },
+    if (body.positionId !== undefined) {
+      const position = await this.positionRepository.findOne({
+        where: { id: body.positionId },
       });
-      player.clubName = club || null;
+
+      if (!position) {
+        throw new Error('Position not found');
+      }
+      player.position = position;
     }
 
-    try {
-      await this.players.save(player);
-      return true;
-    } catch (error) {
-      console.error('Ошибка при сохранении:', error);
-      throw error;
-    }
+    return this.playerRepository.save(player);
   }
 }

@@ -1,5 +1,5 @@
-import { PlayerService } from '../services/player.service';
-import { PlayerController } from '../controllers/player.controller';
+import { PlayerService } from '@/services/player.service';
+import { PlayerController } from '@/controllers/player.controller';
 import { Router } from 'express';
 
 const router = Router();
@@ -7,9 +7,9 @@ const playerService = new PlayerService();
 const playerController = new PlayerController(playerService);
 
 router
-  .get('/', playerController.fullPlayers)
-  .get('/against/stat', playerController.fullPlayers)
-  .post('/', playerController.postPlayer);
+  .route('/')
+  .get(playerController.getPlayer)
+  .post(playerController.postPlayer);
 
 router
   .route('/:id')

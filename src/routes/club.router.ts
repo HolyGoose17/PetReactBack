@@ -1,5 +1,5 @@
-import { ClubService } from '../services/club.service';
-import { ClubController } from '../controllers/club.controller';
+import { ClubService } from '@/services/club.service';
+import { ClubController } from '@/controllers/club.controller';
 import { Router } from 'express';
 
 const router = Router();
