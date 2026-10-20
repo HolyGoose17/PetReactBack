@@ -18,7 +18,7 @@ type FilterPlayerDTO = {
   salaryCurrency?: SalaryCurrency;
   agent_id?: string;
   club_id?: string;
-  positionId?: string;
+  position_id?: string;
   photoPath?: string;
 };
 
@@ -31,7 +31,7 @@ type CreatePlayerDTO = {
   salaryCurrency: SalaryCurrency;
   agent_id?: string;
   club_id?: string;
-  positionId: string;
+  position_id: string;
   photoPath: string;
 };
 
@@ -44,7 +44,7 @@ type UpdatePlayerDTO = {
   salaryCurrency?: SalaryCurrency;
   agent_id?: string;
   club_id?: string;
-  positionId?: string;
+  position_id?: string;
   photoPath?: string;
 };
 
@@ -62,16 +62,14 @@ export class PlayerService {
   }
 
   async findPlayer(filters: FilterPlayerDTO): Promise<Player[]> {
-    const { agent_id, club_id, positionId, ...playerFilters } = filters;
+    const { agent_id, club_id, position_id, ...playerFilters } = filters;
 
     return this.playerRepository.find({
       where: {
         ...playerFilters,
         ...(agent_id !== undefined ? { agent: { id: agent_id } } : {}),
         ...(club_id !== undefined ? { club: { id: club_id } } : {}),
-        ...(positionId !== undefined
-          ? { position: { id: positionId } }
-          : {}),
+        ...(position_id !== undefined ? { position: { id: position_id } } : {}),
       },
       relations: ['agent', 'club', 'position'],
     });
@@ -106,7 +104,7 @@ export class PlayerService {
     }
 
     const position = await this.positionRepository.findOne({
-      where: { id: body.positionId },
+      where: { id: body.position_id },
     });
     if (!position) {
       throw new Error('Position not found');
@@ -197,9 +195,9 @@ export class PlayerService {
       player.club = club;
     }
 
-    if (body.positionId !== undefined) {
+    if (body.position_id !== undefined) {
       const position = await this.positionRepository.findOne({
-        where: { id: body.positionId },
+        where: { id: body.position_id },
       });
 
       if (!position) {

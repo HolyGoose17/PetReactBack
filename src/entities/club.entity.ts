@@ -2,10 +2,10 @@ import { Column, Entity, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
 import { Player } from '@/entities/player.entity';
 import { Owner } from '@/entities/owner.entity';
 import { League } from '@/entities/league.entity';
-import { SoftDeleteEntity } from '@/entities/soft-delete.entity';
+import { BaseEntity } from '@/entities/base.entity';
 
 @Entity('clubs')
-export class Club extends SoftDeleteEntity {
+export class Club extends BaseEntity {
   @Column({ type: 'varchar', length: 100 })
   name: string;
 

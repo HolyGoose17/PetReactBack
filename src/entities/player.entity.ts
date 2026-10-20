@@ -2,7 +2,7 @@ import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { Agent } from '@/entities/agent.entity';
 import { Club } from '@/entities/club.entity';
 import { Position } from '@/entities/position.entity';
-import { SoftDeleteEntity } from '@/entities/soft-delete.entity';
+import { BaseEntity } from '@/entities/base.entity';
 
 export enum PreferredFoot {
   LEFT = 'LEFT',
@@ -17,7 +17,7 @@ export enum SalaryCurrency {
 }
 
 @Entity('players')
-export class Player extends SoftDeleteEntity {
+export class Player extends BaseEntity {
   @Column({ type: 'varchar', length: 255 })
   name: string;
 

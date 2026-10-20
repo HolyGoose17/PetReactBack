@@ -1,5 +1,5 @@
-import { PositionService } from '../services/position.service';
-import { PositionController } from '../controllers/position.controller';
+import { PositionService } from '@/services/position.service';
+import { PositionController } from '@/controllers/position.controller';
 import { Router } from 'express';
 
 const router = Router();
@@ -8,7 +8,7 @@ const positionController = new PositionController(positionService);
 
 router
   .route('/')
-  .get(positionController.allPositions)
+  .get(positionController.getPosition)
   .post(positionController.postPosition);
 
 router

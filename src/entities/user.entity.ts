@@ -1,5 +1,5 @@
 import { Column, Entity } from 'typeorm';
-import { SoftDeleteEntity } from '@/entities/soft-delete.entity';
+import { BaseEntity } from '@/entities/base.entity';
 
 export enum UserRole {
   USER = 'USER',
@@ -7,7 +7,7 @@ export enum UserRole {
 }
 
 @Entity('users')
-export class User extends SoftDeleteEntity {
+export class User extends BaseEntity {
   @Column({ type: 'varchar', length: 255, unique: true })
   login: string;
 

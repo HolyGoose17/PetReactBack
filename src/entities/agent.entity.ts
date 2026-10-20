@@ -1,9 +1,9 @@
 import { Column, Entity, OneToMany } from 'typeorm';
 import { Player } from '@/entities/player.entity';
-import { SoftDeleteEntity } from '@/entities/soft-delete.entity';
+import { BaseEntity } from '@/entities/base.entity';
 
 @Entity('agents')
-export class Agent extends SoftDeleteEntity {
+export class Agent extends BaseEntity {
   @Column({ type: 'varchar', length: 100 })
   name: string;
 

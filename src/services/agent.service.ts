@@ -2,13 +2,11 @@ import { AppDataSource } from '@/config/data-source';
 import { Agent } from '@/entities/agent.entity';
 import { Repository } from 'typeorm';
 
-type FilterAgentDTO = {
-  name?: string;
-};
-type CreateAgentDTO = {
+type AgentDTO = {
   name: string;
 };
-type UpdateAgentDTO = {
+
+type OptionalAgentDTO = {
   name?: string;
 };
 
@@ -19,7 +17,7 @@ export class AgentService {
     this.agentRepository = AppDataSource.getRepository(Agent);
   }
 
-  async findAgent(filters: FilterAgentDTO): Promise<Agent[]> {
+  async findAgent(filters: OptionalAgentDTO): Promise<Agent[]> {
     return this.agentRepository.find({
       where: {
         ...filters,
@@ -33,7 +31,7 @@ export class AgentService {
     });
   }
 
-  async createAgent(body: CreateAgentDTO): Promise<Agent> {
+  async createAgent(body: AgentDTO): Promise<Agent> {
     const agent = this.agentRepository.create({
       ...body,
     });
@@ -47,7 +45,7 @@ export class AgentService {
     return (result.affected ?? 0) > 0;
   }
 
-  async updateAgent(id: string, body: UpdateAgentDTO): Promise<Agent | null> {
+  async updateAgent(id: string, body: AgentDTO): Promise<Agent | null> {
     const agent = await this.agentRepository.findOne({ where: { id } });
 
     if (!agent) {
