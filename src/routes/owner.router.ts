@@ -1,6 +1,7 @@
-import { OwnerService } from '@/services/owner.service';
-import { OwnerController } from '@/controllers/owner.controller';
 import { Router } from 'express';
+
+import { OwnerController } from '@/controllers/owner.controller';
+import { OwnerService } from '@/services/owner.service';
 
 const router = Router();
 const ownerService = new OwnerService();

@@ -1,6 +1,7 @@
-import { PlayerService } from '@/services/player.service';
-import { PlayerController } from '@/controllers/player.controller';
 import { Router } from 'express';
+
+import { PlayerController } from '@/controllers/player.controller';
+import { PlayerService } from '@/services/player.service';
 
 const router = Router();
 const playerService = new PlayerService();

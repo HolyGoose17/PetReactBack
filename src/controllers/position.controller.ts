@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+
 import { PositionService } from '@/services/position.service';
 import { AbstractIdParams, STATUS_CODE } from '@/utils/constants';
 

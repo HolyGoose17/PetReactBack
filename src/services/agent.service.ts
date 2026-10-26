@@ -1,6 +1,7 @@
+import { Repository } from 'typeorm';
+
 import { AppDataSource } from '@/config/data-source';
 import { Agent } from '@/entities/agent.entity';
-import { Repository } from 'typeorm';
 
 type AgentDTO = {
   name: string;

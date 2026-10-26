@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+
 import { LeagueService } from '@/services/league.service';
 import { AbstractIdParams, STATUS_CODE } from '@/utils/constants';
 

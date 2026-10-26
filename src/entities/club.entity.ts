@@ -1,8 +1,9 @@
 import { Column, Entity, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
-import { Player } from '@/entities/player.entity';
-import { Owner } from '@/entities/owner.entity';
-import { League } from '@/entities/league.entity';
+
 import { BaseEntity } from '@/entities/base.entity';
+import { League } from '@/entities/league.entity';
+import { Owner } from '@/entities/owner.entity';
+import { Player } from '@/entities/player.entity';
 
 @Entity('clubs')
 export class Club extends BaseEntity {

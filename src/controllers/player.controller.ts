@@ -1,4 +1,5 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
+
 import { PlayerService } from '@/services/player.service';
 import { AbstractIdParams, STATUS_CODE } from '@/utils/constants';
 

@@ -1,3 +1,5 @@
+import { Repository } from 'typeorm';
+
 import { AppDataSource } from '@/config/data-source';
 import { Agent } from '@/entities/agent.entity';
 import { Club } from '@/entities/club.entity';
@@ -7,7 +9,6 @@ import {
   SalaryCurrency,
 } from '@/entities/player.entity';
 import { Position } from '@/entities/position.entity';
-import { Repository } from 'typeorm';
 
 type FilterPlayerDTO = {
   name?: string;

@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+
 import { OwnerService } from '@/services/owner.service';
 import { AbstractIdParams, STATUS_CODE } from '@/utils/constants';
 

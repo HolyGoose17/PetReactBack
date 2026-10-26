@@ -1,12 +1,13 @@
+import bcrypt from 'bcrypt';
+import { Repository } from 'typeorm';
+
 import { AppDataSource } from '@/config/data-source';
 import { User, UserRole } from '@/entities/user.entity';
-import { Repository } from 'typeorm';
-import bcrypt from 'bcrypt';
 
 type FilterUserDTO = {
   role?: UserRole;
 };
-type CreateUserDTO = {
+export type CreateUserDTO = {
   login: string;
   password: string;
   role?: UserRole;
@@ -36,11 +37,21 @@ export class UserService {
     return this.userRepository.findOne({ where: { login } });
   }
 
+  async findUserByLoginForAuthentication(login: string): Promise<User | null> {
+    // Password is excluded by default, so authentication explicitly selects it only here.
+    return this.userRepository
+      .createQueryBuilder('user')
+      .addSelect('user.password')
+      .where('user.login = :login', { login })
+      .getOne();
+  }
+
   async findUserByID(id: string): Promise<User | null> {
     return this.userRepository.findOne({ where: { id } });
   }
 
   async createUser(body: CreateUserDTO): Promise<User> {
+    // Keep password hashing at the persistence boundary so every creation path hashes once.
     const hashedPassword = await bcrypt.hash(body.password, 10);
 
     const user = this.userRepository.create({

@@ -1,6 +1,7 @@
-import { AbstractIdParams, STATUS_CODE } from '@/utils/constants';
-import { ClubService } from '@/services/club.service';
 import { Request, Response } from 'express';
+
+import { ClubService } from '@/services/club.service';
+import { AbstractIdParams, STATUS_CODE } from '@/utils/constants';
 
 export class ClubController {
   constructor(private readonly clubService: ClubService) {}

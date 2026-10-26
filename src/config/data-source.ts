@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
+import { DataSource } from 'typeorm';
 
 import { Agent } from '@/entities/agent.entity';
-import { DataSource } from 'typeorm';
 import { Club } from '@/entities/club.entity';
 import { League } from '@/entities/league.entity';
 import { Owner } from '@/entities/owner.entity';

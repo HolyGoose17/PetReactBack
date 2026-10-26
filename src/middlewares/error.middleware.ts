@@ -1,5 +1,6 @@
-import { STATUS_CODE } from '@/utils/constants';
 import { Request, Response, NextFunction } from 'express';
+
+import { STATUS_CODE } from '@/utils/constants';
 
 export const errorMiddleware = (
   error: unknown,

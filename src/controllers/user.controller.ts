@@ -1,7 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
+
+import { User, UserRole } from '@/entities/user.entity';
 import { UserService } from '@/services/user.service';
 import { AbstractIdParams, STATUS_CODE } from '@/utils/constants';
-import { User, UserRole } from '@/entities/user.entity';
 
 type UserResponseDTO = {
   id: string;
@@ -12,6 +13,7 @@ type UserResponseDTO = {
 };
 
 function toUserResponse(user: User): UserResponseDTO {
+  // Return an explicit public-field whitelist instead of serializing credential-bearing entities.
   return {
     id: user.id,
     login: user.login,
@@ -74,7 +76,21 @@ export class UserController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const { login, password, role } = req.body;
+      const { login, password, role } = req.body ?? {};
+      if (
+        typeof login !== 'string' ||
+        !login.trim() ||
+        typeof password !== 'string' ||
+        !password ||
+        (role !== undefined &&
+          role !== UserRole.USER &&
+          role !== UserRole.ADMIN)
+      ) {
+        res.status(STATUS_CODE.BAD_REQUEST).json({
+          message: 'Valid login, password, and role are required',
+        });
+        return;
+      }
 
       const existingUser = await this.userService.findUserByLogin(login);
 
@@ -118,7 +134,27 @@ export class UserController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const user = await this.userService.updateUser(req.params.id, req.body);
+      const { login, password, role } = req.body ?? {};
+      if (
+        (login !== undefined &&
+          (typeof login !== 'string' || !login.trim())) ||
+        (password !== undefined &&
+          (typeof password !== 'string' || !password)) ||
+        (role !== undefined &&
+          role !== UserRole.USER &&
+          role !== UserRole.ADMIN)
+      ) {
+        res.status(STATUS_CODE.BAD_REQUEST).json({
+          message: 'Invalid user fields',
+        });
+        return;
+      }
+
+      const user = await this.userService.updateUser(req.params.id, {
+        login,
+        password,
+        role,
+      });
 
       if (!user) {
         res.status(STATUS_CODE.NOT_FOUND).json({ message: 'User not found' });

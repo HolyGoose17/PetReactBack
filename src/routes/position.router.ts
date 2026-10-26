@@ -1,6 +1,7 @@
-import { PositionService } from '@/services/position.service';
-import { PositionController } from '@/controllers/position.controller';
 import { Router } from 'express';
+
+import { PositionController } from '@/controllers/position.controller';
+import { PositionService } from '@/services/position.service';
 
 const router = Router();
 const positionService = new PositionService();

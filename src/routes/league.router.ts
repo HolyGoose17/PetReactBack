@@ -1,6 +1,7 @@
-import { LeagueService } from '@/services/league.service';
-import { LeagueController } from '@/controllers/league.controller';
 import { Router } from 'express';
+
+import { LeagueController } from '@/controllers/league.controller';
+import { LeagueService } from '@/services/league.service';
 
 const router = Router();
 const leagueService = new LeagueService();

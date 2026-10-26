@@ -1,8 +1,9 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+
 import { Agent } from '@/entities/agent.entity';
+import { BaseEntity } from '@/entities/base.entity';
 import { Club } from '@/entities/club.entity';
 import { Position } from '@/entities/position.entity';
-import { BaseEntity } from '@/entities/base.entity';
 
 export enum PreferredFoot {
   LEFT = 'LEFT',

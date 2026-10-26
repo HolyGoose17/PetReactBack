@@ -1,6 +1,7 @@
-import { AgentService } from '@/services/agent.service';
-import { AgentController } from '@/controllers/agent.controller';
 import { Router } from 'express';
+
+import { AgentController } from '@/controllers/agent.controller';
+import { AgentService } from '@/services/agent.service';
 
 const router = Router();
 const agentService = new AgentService();

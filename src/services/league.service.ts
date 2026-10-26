@@ -1,6 +1,7 @@
+import { Repository } from 'typeorm';
+
 import { AppDataSource } from '@/config/data-source';
 import { League } from '@/entities/league.entity';
-import { Repository } from 'typeorm';
 
 type FilterLeagueDTO = {
   name?: string;
