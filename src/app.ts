@@ -2,17 +2,17 @@ import cors from 'cors';
 import express from 'express';
 import fileUpload from 'express-fileupload';
 
-import { AppDataSource } from './config/data-source';
-import { authMiddleware } from './middlewares/auth.middlewares';
-import { errorMiddleware } from './middlewares/error.middleware';
-import routerAgent from './routes/agent.router';
-import routerAuth from './routes/auth.router';
-import routerClub from './routes/club.router';
-import routerLeague from './routes/league.router';
-import routerOwner from './routes/owner.router';
-import routerPlayer from './routes/player.router';
-import routerPosition from './routes/position.router';
-import routerUser from './routes/user.router';
+import { AppDataSource } from '@/config/data-source';
+import { authMiddleware } from '@/middlewares/auth.middlewares';
+import { errorMiddleware } from '@/middlewares/error.middleware';
+import routerAgent from '@/routes/agent.router';
+import routerAuth from '@/routes/auth.router';
+import routerClub from '@/routes/club.router';
+import routerLeague from '@/routes/league.router';
+import routerOwner from '@/routes/owner.router';
+import routerPlayer from '@/routes/player.router';
+import routerPosition from '@/routes/position.router';
+import routerUser from '@/routes/user.router';
 
 const app = express();
 
@@ -33,12 +33,12 @@ app.use('/api/auth', routerAuth);
 
 // Приватный маршрут, доступен только для авторизованных пользователей
 app.use(authMiddleware);
-app.use('agents', routerAgent);
-app.use('clubs', routerClub);
-app.use('leagues', routerLeague);
-app.use('owners', routerOwner);
-app.use('players', routerPlayer);
-app.use('positions', routerPosition);
+app.use('/agents', routerAgent);
+app.use('/clubs', routerClub);
+app.use('/leagues', routerLeague);
+app.use('/owners', routerOwner);
+app.use('/players', routerPlayer);
+app.use('/positions', routerPosition);
 app.use('/users', routerUser);
 app.use(errorMiddleware);
 

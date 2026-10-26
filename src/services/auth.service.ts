@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 
 import { User, UserRole } from '@/entities/user.entity';
 import { UserService } from '@/services/user.service';
@@ -23,6 +23,14 @@ type AuthResult = {
   token: string;
 };
 
+type JwtExpiresIn = Extract<SignOptions['expiresIn'], string>;
+
+function isJwtExpiresIn(value: string): value is JwtExpiresIn {
+  return /^\d+(?:\s?(?:milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|weeks?|w|years?|yrs?|y))?$/i.test(
+    value,
+  );
+}
+
 export class AuthService {
   constructor(private readonly userService: UserService) {}
 
@@ -37,6 +45,11 @@ export class AuthService {
   }
 
   private generateToken(user: User, secret: string): string {
+    const expiresIn = process.env.JWT_EXPIRES_IN || '1h';
+    if (!isJwtExpiresIn(expiresIn)) {
+      throw new Error('JWT_EXPIRES_IN must be a valid duration, for example 1h');
+    }
+
     return jwt.sign(
       {
         id: user.id,
@@ -44,7 +57,7 @@ export class AuthService {
         role: user.role,
       },
       secret,
-      { expiresIn: '1h' },
+      { expiresIn },
     );
   }
 
