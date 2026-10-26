@@ -51,8 +51,9 @@ export class AuthService {
   async login(userData: LoginDTO): Promise<AuthResult | null> {
     if (!userData?.login || !userData?.password) return null;
 
-    const user =
-      await this.userService.findUserByLoginForAuthentication(userData.login);
+    const user = await this.userService.findUserByLoginForAuthentication(
+      userData.login,
+    );
     if (!user) return null;
 
     const isPasswordValid = await bcrypt.compare(
@@ -65,12 +66,10 @@ export class AuthService {
   }
 
   async register(userData: RegisterDTO): Promise<AuthResult | null> {
-    // Check configuration before creating an account that could not receive its login token.
     const secret = this.getJwtSecret();
     const existingUser = await this.userService.findUserByLogin(userData.login);
     if (existingUser) return null;
 
-    // Public registration cannot assign roles; UserService hashes the password once.
     const user = await this.userService.createUser(userData);
 
     return this.toAuthResult(user, secret);

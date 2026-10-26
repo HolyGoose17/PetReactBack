@@ -38,7 +38,6 @@ export class UserService {
   }
 
   async findUserByLoginForAuthentication(login: string): Promise<User | null> {
-    // Password is excluded by default, so authentication explicitly selects it only here.
     return this.userRepository
       .createQueryBuilder('user')
       .addSelect('user.password')
@@ -51,7 +50,6 @@ export class UserService {
   }
 
   async createUser(body: CreateUserDTO): Promise<User> {
-    // Keep password hashing at the persistence boundary so every creation path hashes once.
     const hashedPassword = await bcrypt.hash(body.password, 10);
 
     const user = this.userRepository.create({

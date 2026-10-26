@@ -13,7 +13,6 @@ type UserResponseDTO = {
 };
 
 function toUserResponse(user: User): UserResponseDTO {
-  // Return an explicit public-field whitelist instead of serializing credential-bearing entities.
   return {
     id: user.id,
     login: user.login,
@@ -136,8 +135,7 @@ export class UserController {
     try {
       const { login, password, role } = req.body ?? {};
       if (
-        (login !== undefined &&
-          (typeof login !== 'string' || !login.trim())) ||
+        (login !== undefined && (typeof login !== 'string' || !login.trim())) ||
         (password !== undefined &&
           (typeof password !== 'string' || !password)) ||
         (role !== undefined &&
