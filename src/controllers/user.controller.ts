@@ -1,128 +1,167 @@
-import { Request, Response, NextFunction } from 'express';
-import { UserService } from '../services/user.service';
-import { Repository, getRepository } from 'typeorm';
-import jwt from 'jsonwebtoken';
-import { SECRET_KEY } from '../utils/constants';
+import { NextFunction, Request, Response } from 'express';
+
+import { User, UserRole } from '@/entities/user.entity';
+import { UserService } from '@/services/user.service';
+import { AbstractIdParams, STATUS_CODE } from '@/utils/constants';
+
+type UserResponseDTO = {
+  id: string;
+  login: string;
+  role: UserRole;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+function toUserResponse(user: User): UserResponseDTO {
+  return {
+    id: user.id,
+    login: user.login,
+    role: user.role,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+  };
+}
 
 export class UserController {
-  private userService: UserService;
-  constructor(userService: UserService) {
-    this.userService = userService;
-  }
+  constructor(private readonly userService: UserService) {}
 
-  async getUsers(
+  getUsers = async (
     req: Request,
     res: Response,
     next: NextFunction,
-  ): Promise<void> {
+  ): Promise<void> => {
     try {
-      const result = await this.userService.findUsers(req.query);
-      res.status(200).send(result);
-    } catch (error) {
-      res.status(500).send(error);
-    }
-  }
-
-  async check(req: Request, res: Response, next: NextFunction): Promise<void> {
-    try {
-      const authHeader = req.headers.authorization;
-      if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ message: 'No token provided' });
+      const role = req.query.role as UserRole | undefined;
+      if (
+        role !== undefined &&
+        role !== UserRole.USER &&
+        role !== UserRole.ADMIN
+      ) {
+        res
+          .status(STATUS_CODE.BAD_REQUEST)
+          .json({ message: 'Invalid role filter' });
+        return;
       }
+      const users = await this.userService.findUser(
+        role === undefined ? {} : { role },
+      );
+      res.status(STATUS_CODE.OK).send(users.map(toUserResponse));
+    } catch (error) {
+      next(error);
+    }
+  };
 
-      const token = authHeader.split(' ')[1];
-      const decoded: any = jwt.verify(token, SECRET_KEY);
+  getUserByID = async (
+    req: Request<AbstractIdParams>,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    try {
+      const user = await this.userService.findUserByID(req.params.id);
 
-      const user = await this.userService.findUserByID(decoded.id);
       if (!user) {
-        return res.status(401).json({ message: 'User not found' });
+        res.status(STATUS_CODE.NOT_FOUND).json({ message: 'User not found' });
+        return;
       }
-
-      return res.status(200).json(user);
+      res.status(STATUS_CODE.OK).json(toUserResponse(user));
     } catch (error) {
-      return res.status(401).json({ message: 'Invalid or expired token' });
+      next(error);
     }
-  }
+  };
 
-  async getUserByID(
+  postUser = async (
     req: Request,
     res: Response,
     next: NextFunction,
-  ): Promise<void> {
+  ): Promise<void> => {
     try {
-      const result = await this.userService.findUserByID(Number(req.params.id));
-      res.status(200).send(result);
-    } catch (error) {
-      res.status(500).send(error);
-    } finally {
-      next();
-    }
-  }
-
-  async postUser(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
-    try {
-      const { login, password, role } = req.body;
-
-      if (!login || !password) {
-        return res
-          .status(400)
-          .json({ message: 'Login and password are required' });
+      const { login, password, role } = req.body ?? {};
+      if (
+        typeof login !== 'string' ||
+        !login.trim() ||
+        typeof password !== 'string' ||
+        !password ||
+        (role !== undefined &&
+          role !== UserRole.USER &&
+          role !== UserRole.ADMIN)
+      ) {
+        res.status(STATUS_CODE.BAD_REQUEST).json({
+          message: 'Valid login, password, and role are required',
+        });
+        return;
       }
 
       const existingUser = await this.userService.findUserByLogin(login);
+
       if (existingUser) {
-        return res.status(409).json({ message: 'User already exists' });
+        res
+          .status(STATUS_CODE.CONFLICT)
+          .json({ message: 'User already exists' });
+        return;
       }
 
       const user = await this.userService.createUser({ login, password, role });
 
-      const token = jwt.sign(
-        { id: user.userID, login: user.login, role: user.role },
-        SECRET_KEY,
-        { expiresIn: '10s' },
-      );
-
-      res.status(201).json({ user, token });
+      res.status(STATUS_CODE.CREATED).json(toUserResponse(user));
     } catch (error) {
-      res.status(500).json({ message: error.message });
-    } finally {
-      next();
+      next(error);
     }
-  }
+  };
 
-  async deleteUser(
-    req: Request,
+  deleteUser = async (
+    req: Request<AbstractIdParams>,
     res: Response,
     next: NextFunction,
-  ): Promise<void> {
+  ): Promise<void> => {
     try {
-      const result = await this.userService.deleteUser(Number(req.params.id));
-      res.status(200).json({ success: result });
-    } catch (error) {
-      res.status(500).send(error);
-    } finally {
-      next();
-    }
-  }
+      const deleted = await this.userService.deleteUser(req.params.id);
 
-  async updateUser(
-    req: Request,
+      if (!deleted) {
+        res.status(STATUS_CODE.NOT_FOUND).json({ message: 'User not found' });
+        return;
+      }
+
+      res.status(STATUS_CODE.OK).json({ success: true });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  updateUser = async (
+    req: Request<AbstractIdParams>,
     res: Response,
     next: NextFunction,
-  ): Promise<void> {
+  ): Promise<void> => {
     try {
-      const result = await this.userService.updateUser(
-        Number(req.params.id),
-        req.body,
-      );
+      const { login, password, role } = req.body ?? {};
+      if (
+        (login !== undefined && (typeof login !== 'string' || !login.trim())) ||
+        (password !== undefined &&
+          (typeof password !== 'string' || !password)) ||
+        (role !== undefined &&
+          role !== UserRole.USER &&
+          role !== UserRole.ADMIN)
+      ) {
+        res.status(STATUS_CODE.BAD_REQUEST).json({
+          message: 'Invalid user fields',
+        });
+        return;
+      }
 
-      res.status(200).json({ success: result });
+      const user = await this.userService.updateUser(req.params.id, {
+        login,
+        password,
+        role,
+      });
+
+      if (!user) {
+        res.status(STATUS_CODE.NOT_FOUND).json({ message: 'User not found' });
+        return;
+      }
+
+      res.status(STATUS_CODE.OK).json(toUserResponse(user));
     } catch (error) {
-      res.status(500).send(error);
+      next(error);
     }
-  }
+  };
 }

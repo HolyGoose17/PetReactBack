@@ -1,15 +1,21 @@
-import { LeagueService } from '../services/league.service';
-import { LeagueController } from '../controllers/league.controller'
-import {Router} from 'express'
+import { Router } from 'express';
 
-const router = Router()
+import { LeagueController } from '@/controllers/league.controller';
+import { LeagueService } from '@/services/league.service';
+
+const router = Router();
 const leagueService = new LeagueService();
-const leagueController = new LeagueController(leagueService)
+const leagueController = new LeagueController(leagueService);
 
-router.get('/league/', leagueController.fullLeagues.bind(leagueController))
-.get('/league/:id', leagueController.getLeagueByID.bind(leagueController))
-.post('/league/', leagueController.postLeague.bind(leagueController))
-.put('/league/:id', leagueController.putLeague.bind(leagueController))
-.delete('/league/:id', leagueController.deleteLeague.bind(leagueController))
+router
+  .route('/')
+  .get(leagueController.getLeague)
+  .post(leagueController.postLeague);
+
+router
+  .route('/:id')
+  .get(leagueController.getLeagueByID)
+  .put(leagueController.putLeague)
+  .delete(leagueController.deleteLeague);
 
 export default router;

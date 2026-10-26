@@ -1,83 +1,62 @@
-import { Owner } from "../entities/owner";
-import { Request, Response, NextFunction } from "express";
-import { OwnerService } from "../services/owner.service";
-import { Repository, getRepository } from "typeorm";
+import { Request, Response } from 'express';
+
+import { OwnerService } from '@/services/owner.service';
+import { AbstractIdParams, STATUS_CODE } from '@/utils/constants';
 
 export class OwnerController {
-    private ownerService: OwnerService;
-    constructor (ownerService: OwnerService) {
-        this.ownerService = ownerService
+  constructor(private readonly ownerService: OwnerService) {}
+
+  getOwner = async (req: Request, res: Response): Promise<void> => {
+    const owner = await this.ownerService.findOwner(req.query);
+
+    res.status(STATUS_CODE.OK).json(owner);
+  };
+
+  getOwnerByID = async (
+    req: Request<AbstractIdParams>,
+    res: Response,
+  ): Promise<void> => {
+    const owner = await this.ownerService.findOwnerByID(req.params.id);
+
+    if (!owner) {
+      res.status(STATUS_CODE.NOT_FOUND).json({ error: 'Owner not found' });
+      return;
     }
 
-    async getOwner(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const result = await this.ownerService.findOwner(req.query);
-            res.status(200).send(result)
-        } catch (error){
-            res.status(500).send(error)
-        }
-        finally {
-            next()
-        }
+    res.status(STATUS_CODE.OK).json(owner);
+  };
+
+  postOwner = async (req: Request, res: Response): Promise<void> => {
+    const owner = await this.ownerService.createOwner(req.body);
+
+    res.status(STATUS_CODE.CREATED).json(owner);
+  };
+
+  deleteOwner = async (
+    req: Request<AbstractIdParams>,
+    res: Response,
+  ): Promise<void> => {
+    const owner = await this.ownerService.deleteOwner(req.params.id);
+
+    if (!owner) {
+      res.status(STATUS_CODE.NOT_FOUND).json({ error: 'Owner not found' });
+      return;
     }
 
-    async getOwnerByID(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const result = await this.ownerService.findOwnerByID(req.params.id);
-            res.status(200).send(result)
-        } catch (error){
-            res.status(500).send(error)
-        }
-        finally {
-            next()
-        }
+    res.status(STATUS_CODE.OK).json({ success: true });
+  };
+
+  putOwner = async (
+    req: Request<AbstractIdParams>,
+    res: Response,
+  ): Promise<void> => {
+    const owner = await this.ownerService.updateOwner(req.params.id, req.body);
+
+    if (!owner) {
+      res.status(STATUS_CODE.NOT_FOUND).json({ error: 'Owner not found' });
+      return;
     }
 
-    async postOwner(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const result = await this.ownerService.createOwner(req.body);
-            res.status(200).send(result)
-        } catch (error){
-            res.status(500).send(error)
-        }
-        finally {
-            next()
-        }
-    }
-
-    async deleteOwner(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const result = await this.ownerService.deleteOwner(req.params.id);
-            res.status(200).send(result)
-        } catch (error){
-            res.status(500).send(error)
-        }
-        finally {
-            next()
-        }
-    }
-
-    async putOwner(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {           
-            const result = await this.ownerService.updateOwner(req.params.id, req.body);
-            res.status(200).send(result)
-        } catch (error){
-            res.status(500).send(error)
-        }
-        finally {
-            next()
-        }
-    }
-
-    async fullOwners(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {           
-            const result = await this.ownerService.allOwners();
-            res.status(200).send(result)
-        } catch (error){
-            res.status(500).send(error)
-        }
-        finally {
-            next()
-        }
-    }
+    res.status(STATUS_CODE.OK).json(owner);
+  };
 }

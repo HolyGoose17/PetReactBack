@@ -3,6 +3,9 @@
     "target": "ES2022",
     "module": "CommonJS",
 
+    "paths": {
+      "@/*": ["./src/*"]
+    },
     "rootDir": "./src",
     "outDir": "./build",
 

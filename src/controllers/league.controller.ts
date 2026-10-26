@@ -1,83 +1,65 @@
-import { League } from "../entities/league";
-import { Request, Response, NextFunction } from "express";
-import { LeagueService } from "../services/league.service";
-import { Repository, getRepository } from "typeorm";
+import { Request, Response } from 'express';
+
+import { LeagueService } from '@/services/league.service';
+import { AbstractIdParams, STATUS_CODE } from '@/utils/constants';
 
 export class LeagueController {
-    private leagueService: LeagueService;
-    constructor (leagueService: LeagueService) {
-        this.leagueService = leagueService
+  constructor(private readonly leagueService: LeagueService) {}
+
+  getLeague = async (req: Request, res: Response): Promise<void> => {
+    const league = await this.leagueService.findLeague(req.query);
+
+    res.status(STATUS_CODE.OK).json(league);
+  };
+
+  getLeagueByID = async (
+    req: Request<AbstractIdParams>,
+    res: Response,
+  ): Promise<void> => {
+    const league = await this.leagueService.findLeagueByID(req.params.id);
+
+    if (!league) {
+      res.status(STATUS_CODE.NOT_FOUND).json({ error: 'League not found' });
+      return;
     }
 
-    async getLeague(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const result = await this.leagueService.findLeague(req.query);
-            res.status(200).send(result)
-        } catch (error){
-            res.status(500).send(error)
-        }
-        finally {
-            next()
-        }
+    res.status(STATUS_CODE.OK).json(league);
+  };
+
+  postLeague = async (req: Request, res: Response): Promise<void> => {
+    const league = await this.leagueService.createLeague(req.body);
+
+    res.status(STATUS_CODE.CREATED).json(league);
+  };
+
+  deleteLeague = async (
+    req: Request<AbstractIdParams>,
+    res: Response,
+  ): Promise<void> => {
+    const league = await this.leagueService.deleteLeague(req.params.id);
+
+    if (!league) {
+      res.status(STATUS_CODE.NOT_FOUND).json({ error: 'League not found' });
+      return;
     }
 
-    async getLeagueByID(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const result = await this.leagueService.findLeagueByID(req.params.id);
-            res.status(200).send(result)
-        } catch (error){
-            res.status(500).send(error)
-        }
-        finally {
-            next()
-        }
+    res.status(STATUS_CODE.OK).json({ success: true });
+  };
+
+  putLeague = async (
+    req: Request<AbstractIdParams>,
+    res: Response,
+  ): Promise<void> => {
+    const league = await this.leagueService.updateLeague(
+      req.params.id,
+      req.body,
+    );
+
+    if (!league) {
+      res.status(STATUS_CODE.NOT_FOUND).json({ error: 'League not found' });
+      return;
     }
 
-    async postLeague(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const result = await this.leagueService.createLeague(req.body);
-            res.status(200).send(result)
-        } catch (error){
-            res.status(500).send(error)
-        }
-        finally {
-            next()
-        }
-    }
-
-    async deleteLeague(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const result = await this.leagueService.deleteLeague(req.params.id);
-            res.status(200).send(result)
-        } catch (error){
-            res.status(500).send(error)
-        }
-        finally {
-            next()
-        }
-    }
-
-    async putLeague(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {           
-            const result = await this.leagueService.updateLeague(req.params.id, req.body);
-            res.status(200).send(result)
-        } catch (error){
-            res.status(500).send(error)
-        }
-        finally {
-            next()
-        }
-    }
-
-    async fullLeagues(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {           
-            const result = await this.leagueService.allLeagues();
-            res.status(200).send(result)
-        } catch (error){
-            res.status(500).send(error)
-        }
-        finally {
-            next()
-        }
-    }
+    res.status(STATUS_CODE.OK).json(league);
+  };
 }

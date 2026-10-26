@@ -1,68 +1,85 @@
-import { Users } from '../entities/user';
-import { Repository, getRepository } from 'typeorm';
+import bcrypt from 'bcrypt';
+import { Repository } from 'typeorm';
+
+import { AppDataSource } from '@/config/data-source';
+import { User, UserRole } from '@/entities/user.entity';
 
 type FilterUserDTO = {
-  role?: string;
+  role?: UserRole;
 };
-type CreateUserDTO = {
+export type CreateUserDTO = {
   login: string;
   password: string;
-  role?: string;
+  role?: UserRole;
 };
 type UpdateUserDTO = {
   login?: string;
   password?: string;
-  role?: string;
+  role?: UserRole;
 };
 
 export class UserService {
-  private users: Repository<Users>;
+  private readonly userRepository: Repository<User>;
 
-  async allUsers(): Promise<Users[]> {
-    this.users = getRepository(Users);
-    return await this.users.find();
+  constructor() {
+    this.userRepository = AppDataSource.getRepository(User);
   }
 
-  async findUsers(filters: FilterUserDTO): Promise<Users[]> {
-    this.users = getRepository(Users);
-    return await this.users.find({
+  async findUser(filters: FilterUserDTO): Promise<User[]> {
+    return this.userRepository.find({
       where: {
         ...filters,
       },
     });
   }
 
-  async findUserByLogin(login: string): Promise<Users | null> {
-    this.users = getRepository(Users);
-    return await this.users.findOne({ where: { login } });
+  async findUserByLogin(login: string): Promise<User | null> {
+    return this.userRepository.findOne({ where: { login } });
   }
 
-  async findUserByID(id: number): Promise<Users | null> {
-    this.users = getRepository(Users);
-    return await this.users.findOne({ where: { userID: id } });
+  async findUserByLoginForAuthentication(login: string): Promise<User | null> {
+    return this.userRepository
+      .createQueryBuilder('user')
+      .addSelect('user.password')
+      .where('user.login = :login', { login })
+      .getOne();
   }
 
-  async createUser(body: CreateUserDTO): Promise<Users> {
-    this.users = getRepository(Users);
+  async findUserByID(id: string): Promise<User | null> {
+    return this.userRepository.findOne({ where: { id } });
+  }
 
-    const user = this.users.create({
+  async createUser(body: CreateUserDTO): Promise<User> {
+    const hashedPassword = await bcrypt.hash(body.password, 10);
+
+    const user = this.userRepository.create({
       ...body,
-      isDeleted: false,
-      role: body.role || 'USER',
+      password: hashedPassword,
+      role: body.role ?? UserRole.USER,
     });
 
-    return await this.users.save(user);
+    return this.userRepository.save(user);
   }
 
-  async deleteUser(userID: number): Promise<boolean> {
-    this.users = getRepository(Users);
-    const result = await this.users.delete({ userID });
+  async deleteUser(id: string): Promise<boolean> {
+    const result = await this.userRepository.softDelete({ id });
     return (result.affected ?? 0) > 0;
   }
 
-  async updateUser(id: number, body: UpdateUserDTO): Promise<boolean> {
-    this.users = getRepository(Users);
-    const result = await this.users.update({ userID: id }, body);
-    return (result.affected ?? 0) > 0;
+  async updateUser(id: string, body: UpdateUserDTO): Promise<User | null> {
+    const user = await this.findUserByID(id);
+    if (!user) {
+      return null;
+    }
+    if (body.login !== undefined) {
+      user.login = body.login;
+    }
+    if (body.password !== undefined) {
+      user.password = await bcrypt.hash(body.password, 10);
+    }
+    if (body.role !== undefined) {
+      user.role = body.role;
+    }
+    return this.userRepository.save(user);
   }
 }

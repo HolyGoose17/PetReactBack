@@ -1,52 +1,62 @@
-import { Agent } from "../entities/agent";
-import { Repository, getRepository } from "typeorm";
+import { Repository } from 'typeorm';
 
-type FilterAgentDTO = {
-    agentName?: string;
-}
-type CreateAgentDTO = {
-    agentName?: string;
-}
-type UpdateAgentDTO = {
-    agentName?: string;
-}
+import { AppDataSource } from '@/config/data-source';
+import { Agent } from '@/entities/agent.entity';
 
-export  class AgentService {
-    private agents: Repository<Agent>;
-    
-        async allAgents(): Promise<Agent> {
-            this.agents = getRepository(Agent)
-            return await this.agents.query('Select * from Agent');
-        }
+type AgentDTO = {
+  name: string;
+};
 
-    async findAgents(filters: FilterAgentDTO): Promise<Agent[]> {
-        this.agents = getRepository(Agent)
-        return await this.agents.find({
-            where: {
-                ...filters
-            }
-        });
+type OptionalAgentDTO = {
+  name?: string;
+};
+
+export class AgentService {
+  private readonly agentRepository: Repository<Agent>;
+
+  constructor() {
+    this.agentRepository = AppDataSource.getRepository(Agent);
+  }
+
+  async findAgent(filters: OptionalAgentDTO): Promise<Agent[]> {
+    return this.agentRepository.find({
+      where: {
+        ...filters,
+      },
+    });
+  }
+
+  async findAgentByID(id: string): Promise<Agent | null> {
+    return this.agentRepository.findOne({
+      where: { id },
+    });
+  }
+
+  async createAgent(body: AgentDTO): Promise<Agent> {
+    const agent = this.agentRepository.create({
+      ...body,
+    });
+
+    return this.agentRepository.save(agent);
+  }
+
+  async deleteAgent(id: string): Promise<boolean> {
+    const result = await this.agentRepository.softDelete({ id });
+
+    return (result.affected ?? 0) > 0;
+  }
+
+  async updateAgent(id: string, body: AgentDTO): Promise<Agent | null> {
+    const agent = await this.agentRepository.findOne({ where: { id } });
+
+    if (!agent) {
+      return null;
     }
 
-    async findAgentByID(agentID: number): Promise<Agent> {
-        this.agents = getRepository(Agent)
-        return await this.agents.findOne({ where: { agentID }, relations: ['playersName'] });
-    }   
-    
-    async createAgent(body: CreateAgentDTO): Promise<Agent> {
-        this.agents = getRepository(Agent)
-        return await this.agents.save({...body})
+    if (body.name !== undefined) {
+      agent.name = body.name;
     }
-    
-    async deleteAgent(agentID: number): Promise<boolean> {
-        this.agents = getRepository(Agent)
-        const result = await this.agents.delete({ agentID });
-        return (result.affected ?? 0) > 0;
-    }
-        
-    async updateAgent(id: number, body:UpdateAgentDTO): Promise<any> {
-        this.agents = getRepository(Agent)
-        const result =  await this.agents.update(id, {...body});
-        return result ? true : false;
-    }
+
+    return this.agentRepository.save(agent);
+  }
 }

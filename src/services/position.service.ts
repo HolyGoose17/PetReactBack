@@ -1,43 +1,61 @@
-import { AppDataSource } from '../config/data-source';
-import { Position } from '../entities/position';
 import { Repository } from 'typeorm';
 
-export type PositionDTO = {
+import { AppDataSource } from '@/config/data-source';
+import { Position } from '@/entities/position.entity';
+
+type PositionDTO = {
+  name: string;
+};
+
+type OptionalPositionDTO = {
   name?: string;
 };
 
 export class PositionService {
-  private positionRepository: Repository<Position>;
+  private readonly positionRepository: Repository<Position>;
+
   constructor() {
     this.positionRepository = AppDataSource.getRepository(Position);
   }
 
-  async allPositions(): Promise<Position[]> {
-    return await this.positionRepository.find();
-  }
-
-  async findPosition(filters: PositionDTO): Promise<Position[]> {
-    return await this.positionRepository.find({
+  async findPosition(filters: OptionalPositionDTO): Promise<Position[]> {
+    return this.positionRepository.find({
       where: filters,
     });
   }
 
-  async findPositionByID(id: number): Promise<Position | null> {
-    return await this.positionRepository.findOne({ where: { id } });
+  async findPositionByID(id: string): Promise<Position | null> {
+    return this.positionRepository.findOne({ where: { id } });
   }
 
   async createPosition(body: PositionDTO): Promise<Position> {
     const position = this.positionRepository.create(body);
+
     return await this.positionRepository.save(position);
   }
 
-  async deletePosition(id: number): Promise<boolean> {
-    const result = await this.positionRepository.delete({ id: id });
+  async deletePosition(id: string): Promise<boolean> {
+    const result = await this.positionRepository.softDelete({ id });
+
     return (result.affected ?? 0) > 0;
   }
 
-  async updatePosition(id: number, body: PositionDTO): Promise<boolean> {
-    const result = await this.positionRepository.update(id, { ...body });
-    return (result.affected ?? 0) > 0;
+  async updatePosition(
+    id: string,
+    body: PositionDTO,
+  ): Promise<Position | null> {
+    const position = await this.positionRepository.findOne({
+      where: { id },
+    });
+
+    if (!position) {
+      return null;
+    }
+
+    if (body.name !== undefined) {
+      position.name = body.name;
+    }
+
+    return this.positionRepository.save(position);
   }
 }

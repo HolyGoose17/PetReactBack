@@ -1,17 +1,18 @@
 import cors from 'cors';
-import fileUpload from 'express-fileupload';
 import express from 'express';
+import fileUpload from 'express-fileupload';
 
+import { AppDataSource } from './config/data-source';
+import { authMiddleware } from './middlewares/auth.middlewares';
+import { errorMiddleware } from './middlewares/error.middleware';
 import routerAgent from './routes/agent.router';
+import routerAuth from './routes/auth.router';
 import routerClub from './routes/club.router';
 import routerLeague from './routes/league.router';
 import routerOwner from './routes/owner.router';
 import routerPlayer from './routes/player.router';
 import routerPosition from './routes/position.router';
 import routerUser from './routes/user.router';
-import routerAuth from './routes/auth.router';
-import { authMiddleware } from './middlewares/auth.middlewares';
-import { AppDataSource } from './config/data-source';
 
 const app = express();
 
@@ -32,13 +33,14 @@ app.use('/api/auth', routerAuth);
 
 // Приватный маршрут, доступен только для авторизованных пользователей
 app.use(authMiddleware);
-app.use(routerAgent);
-app.use(routerClub);
-app.use(routerLeague);
-app.use(routerOwner);
-app.use(routerPlayer);
-app.use(routerPosition);
-app.use(routerUser);
+app.use('agents', routerAgent);
+app.use('clubs', routerClub);
+app.use('leagues', routerLeague);
+app.use('owners', routerOwner);
+app.use('players', routerPlayer);
+app.use('positions', routerPosition);
+app.use('/users', routerUser);
+app.use(errorMiddleware);
 
 const PORT = process.env.PORT || 3005;
 

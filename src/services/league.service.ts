@@ -1,51 +1,66 @@
-import { League } from '../entities/league';
-import { Repository, getRepository } from 'typeorm';
+import { Repository } from 'typeorm';
+
+import { AppDataSource } from '@/config/data-source';
+import { League } from '@/entities/league.entity';
 
 type FilterLeagueDTO = {
-  leagueName?: string;
+  name?: string;
 };
 type CreateLeagueDTO = {
-  leagueName?: string;
+  name: string;
+  logoPath: string;
 };
 type UpdateLeagueDTO = {
-  leagueName?: string;
+  name?: string;
+  logoPath?: string;
 };
 
 export class LeagueService {
-  private leagues: Repository<League>;
-
-  async allLeagues(): Promise<League> {
-    this.leagues = getRepository(League);
-    return await this.leagues.query('Select * from League');
+  private readonly leagueRepository: Repository<League>;
+  constructor() {
+    this.leagueRepository = AppDataSource.getRepository(League);
   }
 
   async findLeague(filters: FilterLeagueDTO): Promise<League[]> {
-    this.leagues = getRepository(League);
-    return await this.leagues.find({
+    return this.leagueRepository.find({
       where: {
         ...filters,
       },
     });
   }
 
-  async findLeagueByID(leagueID: number): Promise<League> {
-    this.leagues = getRepository(League);
-    return await this.leagues.findOne({ where: { leagueID } });
+  async findLeagueByID(id: string): Promise<League | null> {
+    return this.leagueRepository.findOne({ where: { id } });
   }
+
   async createLeague(body: CreateLeagueDTO): Promise<League> {
-    this.leagues = getRepository(League);
-    return await this.leagues.save({ ...body });
+    const league = this.leagueRepository.create(body);
+    return this.leagueRepository.save(league);
   }
 
-  async deleteLeague(leagueID: number): Promise<boolean> {
-    this.leagues = getRepository(League);
-    const result = await this.leagues.delete({ leagueID });
+  async updateLeague(
+    id: string,
+    body: UpdateLeagueDTO,
+  ): Promise<League | null> {
+    const league = await this.leagueRepository.findOne({ where: { id } });
+
+    if (!league) {
+      return null;
+    }
+
+    if (body.name !== undefined) {
+      league.name = body.name;
+    }
+
+    if (body.logoPath !== undefined) {
+      league.logoPath = body.logoPath;
+    }
+
+    return this.leagueRepository.save(league);
+  }
+
+  async deleteLeague(id: string): Promise<boolean> {
+    const result = await this.leagueRepository.softDelete({ id });
     return (result.affected ?? 0) > 0;
-  }
-
-  async updateLeague(id: number, body: UpdateLeagueDTO): Promise<any> {
-    this.leagues = getRepository(League);
-    const result = await this.leagues.update(id, { ...body });
-    return result ? true : false;
   }
 }

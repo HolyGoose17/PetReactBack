@@ -1,83 +1,62 @@
+import { Request, Response } from 'express';
 
-import { Request, Response, NextFunction } from "express";
-import { AgentService } from "../services/agent.service";
-
+import { AgentService } from '@/services/agent.service';
+import { AbstractIdParams, STATUS_CODE } from '@/utils/constants';
 
 export class AgentController {
-    private agentService: AgentService;
-    constructor (agentService: AgentService) {
-        this.agentService = agentService
+  constructor(private readonly agentService: AgentService) {}
+
+  getAgent = async (req: Request, res: Response): Promise<void> => {
+    const agent = await this.agentService.findAgent(req.query);
+
+    res.status(STATUS_CODE.OK).json(agent);
+  };
+
+  getAgentByID = async (
+    req: Request<AbstractIdParams>,
+    res: Response,
+  ): Promise<void> => {
+    const agent = await this.agentService.findAgentByID(req.params.id);
+
+    if (!agent) {
+      res.status(STATUS_CODE.NOT_FOUND).json({ error: 'Agent not found' });
+      return;
     }
 
-    async getAgent(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const result = await this.agentService.findAgents(req.query);
-            res.status(200).send(result)
-        } catch (error){
-            res.status(500).send(error)
-        }
-        finally {
-            next()
-        }
+    res.status(STATUS_CODE.OK).json(agent);
+  };
+
+  postAgent = async (req: Request, res: Response): Promise<void> => {
+    const agent = await this.agentService.createAgent(req.body);
+
+    res.status(STATUS_CODE.CREATED).json(agent);
+  };
+
+  deleteAgent = async (
+    req: Request<AbstractIdParams>,
+    res: Response,
+  ): Promise<void> => {
+    const agent = await this.agentService.deleteAgent(req.params.id);
+
+    if (!agent) {
+      res.status(STATUS_CODE.NOT_FOUND).json({ error: 'Agent not found' });
+      return;
     }
 
-    async getAgentByID(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const result = await this.agentService.findAgentByID(req.params.id);
-            res.status(200).send(result)
-        } catch (error){
-            res.status(500).send(error)
-        }
-        finally {
-            next()
-        }
+    res.status(STATUS_CODE.OK).json({ success: true });
+  };
+
+  putAgent = async (
+    req: Request<AbstractIdParams>,
+    res: Response,
+  ): Promise<void> => {
+    const agent = await this.agentService.updateAgent(req.params.id, req.body);
+
+    if (!agent) {
+      res.status(STATUS_CODE.NOT_FOUND).json({ error: 'Agent not found' });
+      return;
     }
 
-    async postAgent(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const result = await this.agentService.createAgent(req.body);
-            res.status(200).send(result)
-        } catch (error){
-            res.status(500).send(error)
-        }
-        finally {
-            next()
-        }
-    }
-
-    async deleteAgent(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const result = await this.agentService.deleteAgent(req.params.id);
-            res.status(200).send(result)
-        } catch (error){
-            res.status(500).send(error)
-        }
-        finally {
-            next()
-        }
-    }
-
-    async putAgent(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {           
-            const result = await this.agentService.updateAgent(req.params.id, req.body);
-            res.status(200).send(result)
-        } catch (error){
-            res.status(500).send(error)
-        }
-        finally {
-            next()
-        }
-    }
-
-    async fullAgents(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {           
-            const result = await this.agentService.allAgents();
-            res.status(200).send(result)
-        } catch (error){
-            res.status(500).send(error)
-        }
-        finally {
-            next()
-        }
-    }
+    res.status(STATUS_CODE.OK).json(agent);
+  };
 }

@@ -1,75 +1,65 @@
-import { Request, Response, NextFunction } from 'express';
-import { PositionService } from '../services/position.service';
+import { Request, Response } from 'express';
+
+import { PositionService } from '@/services/position.service';
+import { AbstractIdParams, STATUS_CODE } from '@/utils/constants';
 
 export class PositionController {
   constructor(private readonly positionService: PositionService) {}
 
-  async getPosition(req: Request, res: Response): Promise<void> {
-    try {
-      const result = await this.positionService.findPosition(req.query);
-      res.status(200).json(result);
-    } catch (error) {
-      this.handleError(res, error);
+  getPosition = async (req: Request, res: Response): Promise<void> => {
+    const position = await this.positionService.findPosition(req.query);
+
+    res.status(STATUS_CODE.OK).json(position);
+  };
+
+  getPositionByID = async (
+    req: Request<AbstractIdParams>,
+    res: Response,
+  ): Promise<void> => {
+    const position = await this.positionService.findPositionByID(req.params.id);
+
+    if (!position) {
+      res.status(STATUS_CODE.NOT_FOUND).json({ message: 'Position not found' });
+      return;
     }
-  }
 
-  async getPositionByID(req: Request, res: Response): Promise<void> {
-    try {
-      const id = Number(req.params.id);
-      const result = await this.positionService.findPositionByID(id);
+    res.status(STATUS_CODE.OK).json(position);
+  };
 
-      if (!result) {
-        res.status(404).json({ message: 'Position not found' });
-        return;
-      }
+  postPosition = async (req: Request, res: Response): Promise<void> => {
+    const position = await this.positionService.createPosition(req.body);
 
-      res.status(200).json(result);
-    } catch (error) {
-      this.handleError(res, error);
+    res.status(STATUS_CODE.CREATED).json(position);
+  };
+
+  deletePosition = async (
+    req: Request<AbstractIdParams>,
+    res: Response,
+  ): Promise<void> => {
+    const position = await this.positionService.deletePosition(req.params.id);
+
+    if (!position) {
+      res.status(STATUS_CODE.NOT_FOUND).json({ error: 'Position not found' });
+      return;
     }
-  }
 
-  async postPosition(req: Request, res: Response): Promise<void> {
-    try {
-      const result = await this.positionService.createPosition(req.body);
-      res.status(201).json(result);
-    } catch (error) {
-      this.handleError(res, error);
+    res.status(STATUS_CODE.OK).json({ success: true });
+  };
+
+  putPosition = async (
+    req: Request<AbstractIdParams>,
+    res: Response,
+  ): Promise<void> => {
+    const position = await this.positionService.updatePosition(
+      req.params.id,
+      req.body,
+    );
+
+    if (!position) {
+      res.status(STATUS_CODE.NOT_FOUND).json({ error: 'Position not found' });
+      return;
     }
-  }
 
-  async deletePosition(req: Request, res: Response): Promise<void> {
-    try {
-      const id = Number(req.params.id);
-      const result = await this.positionService.deletePosition(id);
-      res.status(200).json(result);
-    } catch (error) {
-      this.handleError(res, error);
-    }
-  }
-
-  async putPosition(req: Request, res: Response): Promise<void> {
-    try {
-      const id = Number(req.params.id);
-      const result = await this.positionService.updatePosition(id, req.body);
-      res.status(200).json(result);
-    } catch (error) {
-      this.handleError(res, error);
-    }
-  }
-
-  async allPositions(req: Request, res: Response): Promise<void> {
-    try {
-      const result = await this.positionService.allPositions();
-      res.status(200).json(result);
-    } catch (error) {
-      this.handleError(res, error);
-    }
-  }
-
-  private handleError(res: Response, error: unknown): void {
-    const message =
-      error instanceof Error ? error.message : 'Internal Server Error';
-    res.status(500).json({ error: message });
-  }
+    res.status(STATUS_CODE.OK).json(position);
+  };
 }
