@@ -9,10 +9,10 @@
     "lint:fix": "eslint src --fix",
     "start": "node ./build/app.js",
     "typeorm": "tsx ./node_modules/typeorm/cli.js",
-    "migration:generate": "typeorm-ts-node-commonjs migration:generate",
-    "migration:create": "typeorm migration:create",
-    "migration:run": "typeorm-ts-node-commonjs migration:run",
-    "migration:revert": "typeorm-ts-node-commonjs migration:revert"
+    "migration:generate": "tsx ./node_modules/typeorm/cli.js migration:generate -d ./src/config/data-source.ts",
+    "migration:create": "tsx ./node_modules/typeorm/cli.js migration:create",
+    "migration:run": "tsx ./node_modules/typeorm/cli.js migration:run -d ./src/config/data-source.ts",
+    "migration:revert": "tsx ./node_modules/typeorm/cli.js migration:revert -d ./src/config/data-source.ts"
   },
   "author": "Pavel Holub",
   "license": "ISC",
@@ -24,7 +24,7 @@
     "express": "5.1.0",
     "express-fileupload": "^1.5.2",
     "jsonwebtoken": "^9.0.2",
-    "mysql2": "^3.14.1",
+    "pg": "^8.23.1",
     "tsx": "^4.23.13",
     "typeorm": "^0.3.25",
     "uuid": "^11.1.0"

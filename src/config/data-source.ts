@@ -12,13 +12,14 @@ import { User } from '@/entities/user.entity';
 dotenv.config();
 
 export const AppDataSource = new DataSource({
-  type: 'mysql',
+  type: 'postgres',
   host: process.env.DB_HOST || 'localhost',
-  port: Number(process.env.DB_PORT) || 3306,
-  username: process.env.DB_USERNAME || 'root',
+  port: Number(process.env.DB_PORT) || 5432,
+  username: process.env.DB_USER || 'postgres',
   password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'football_management',
+  database: process.env.DB_NAME || 'football_managment',
   entities: [Agent, Club, League, Owner, Player, Position, User],
-  synchronize: false,
+  migrations: [__dirname + '/../migrations/*{.ts,.js}'],
+  synchronize: true, // Включите синхронизацию только в режиме разработки
   logging: ['error'],
 });
