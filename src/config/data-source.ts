@@ -20,6 +20,6 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_NAME || 'football_managment',
   entities: [Agent, Club, League, Owner, Player, Position, User],
   migrations: [__dirname + '/../migrations/*{.ts,.js}'],
-  synchronize: true, // Включите синхронизацию только в режиме разработки
+  synchronize: true, // Включай синхронизацию только в режиме разработки
   logging: ['error'],
 });

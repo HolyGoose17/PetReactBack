@@ -29,7 +29,7 @@ app.use(
 );
 
 // Публичный маршрут, доступен без авторизации
-app.use('/api/auth', routerAuth);
+app.use('/', routerAuth);
 
 // Приватный маршрут, доступен только для авторизованных пользователей
 app.use(authMiddleware);
